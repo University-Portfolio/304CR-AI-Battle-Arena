@@ -8,6 +8,9 @@ public class Character : MonoBehaviour
     public CharacterController characterController { get; private set; }
 
     [SerializeField]
+    private ArrowProjectile defaultProjectile;
+
+    [SerializeField]
     private Vector3 gravityVector = Vector3.down;
     [SerializeField]
     private float dragFactor = 1.0f;
@@ -97,5 +100,16 @@ public class Character : MonoBehaviour
     public void Turn(float amount)
     {
         deltaAngle += amount * turnSpeed;
+    }
+
+    /// <summary>
+    /// Attempt to fire an arrow
+    /// </summary>
+    /// <returns>If arrow successfully fires</returns>
+    public bool Fire()
+    {
+        ArrowProjectile projectile = Instantiate(defaultProjectile.gameObject).GetComponent<ArrowProjectile>();
+        projectile.Fire(this);
+        return true;
     }
 }

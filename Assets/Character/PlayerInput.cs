@@ -25,5 +25,8 @@ public class PlayerInput : MonoBehaviour
             character.Turn(-1);
         if (Input.GetKey(KeyCode.D))
             character.Turn(1);
+
+        if (Input.GetKeyDown(KeyCode.Space))
+            character.Fire();
     }
 }
