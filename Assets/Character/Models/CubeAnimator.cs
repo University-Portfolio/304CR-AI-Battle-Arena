@@ -10,11 +10,19 @@ public class CubeAnimator : MonoBehaviour
 
     [SerializeField]
     private Character character;
-    
 
-	void Start ()
+    private int tag_AbsSpeed;
+    private int tag_Speed;
+    private int tag_IsFiring;
+
+
+    void Start ()
     {
         animator = GetComponent<Animator>();
+
+        tag_AbsSpeed = Animator.StringToHash("AbsSpeed");
+        tag_Speed = Animator.StringToHash("Speed");
+        tag_IsFiring = Animator.StringToHash("IsFiring");
     }
 	
 	void Update ()
@@ -25,7 +33,9 @@ public class CubeAnimator : MonoBehaviour
 
         float speed = Mathf.Clamp01(character.velocity.magnitude);
 
-        animator.SetFloat("AbsSpeed", speed);
-        animator.SetFloat("Speed", speed * dir);
+        animator.SetFloat(tag_AbsSpeed, speed);
+        animator.SetFloat(tag_Speed, speed * dir);
+
+        animator.SetBool(tag_IsFiring, false);
     }
 }
