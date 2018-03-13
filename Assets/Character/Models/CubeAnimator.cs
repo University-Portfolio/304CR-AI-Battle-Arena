@@ -15,6 +15,7 @@ public class CubeAnimator : MonoBehaviour
     private int tag_Speed;
 	private int tag_IsFiring;
 	private int tag_FireDuration;
+	private int tag_IsDead;
 
 
 	void Start ()
@@ -25,6 +26,7 @@ public class CubeAnimator : MonoBehaviour
         tag_Speed = Animator.StringToHash("Speed");
 		tag_IsFiring = Animator.StringToHash("IsFiring");
 		tag_FireDuration = Animator.StringToHash("FireDuration");
+		tag_IsDead = Animator.StringToHash("IsDead");
 	}
 	
 	void Update ()
@@ -40,5 +42,7 @@ public class CubeAnimator : MonoBehaviour
 
         animator.SetBool(tag_IsFiring, character.IsShooting);
 		animator.SetFloat(tag_FireDuration, 1.0f / character.shootDuration);
+
+		animator.SetBool(tag_IsDead, character.IsDead);
 	}
 }

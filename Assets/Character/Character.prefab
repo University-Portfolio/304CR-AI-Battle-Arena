@@ -19,7 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4272475306878426}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit43
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34,7 +34,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4974257769137724}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BoneForward
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49,7 +49,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4222440852589792}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BoneDown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -64,7 +64,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4236439474159420}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArm1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -81,7 +81,7 @@ GameObject:
   - component: {fileID: 4785603361572954}
   - component: {fileID: 33431395822408500}
   - component: {fileID: 23347928625789886}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bow...
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4286664377904648}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit21
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +111,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4327816690135304}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BoneRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126,7 +126,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4240005391574230}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmCollarbone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,7 +141,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4730470952841386}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Character001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4580007596725834}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit33
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -171,7 +171,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4754584104339366}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit41
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -186,7 +186,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4871313963466532}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -201,7 +201,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4992162096814980}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit41
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -216,7 +216,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4793880143289992}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -231,7 +231,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4632967690915562}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit22
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -246,7 +246,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4170471644078806}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit43
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4265819578283296}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit33
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -278,7 +278,7 @@ GameObject:
   - component: {fileID: 4055475928398662}
   - component: {fileID: 95644341006908416}
   - component: {fileID: 114766526707172106}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MDL_CubeGuy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -293,7 +293,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4642295544567232}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit42
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -308,7 +308,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4359739790048598}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -323,7 +323,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4375946870990380}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArm2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -338,7 +338,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4635567826718362}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit42
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -353,7 +353,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4764667555071940}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit31
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -368,7 +368,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4205983863822358}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit31
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -383,7 +383,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4229454799171882}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArm1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -398,7 +398,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4676443989798220}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArm2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -415,7 +415,7 @@ GameObject:
   - component: {fileID: 4698859136959252}
   - component: {fileID: 33021127918486638}
   - component: {fileID: 23312309761735944}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -430,7 +430,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4227503550221154}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmPalm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -445,7 +445,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4954781447291192}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BoneBack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -461,7 +461,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4935683699868976}
   - component: {fileID: 137037344697591086}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -476,7 +476,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4811812764026662}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit22
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -491,7 +491,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4562466601881336}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -507,9 +507,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4410353745482480}
   - component: {fileID: 33379869652430608}
-  - component: {fileID: 64753690767662450}
   - component: {fileID: 23772045178782936}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Indicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -524,7 +523,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4900296967773968}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -539,7 +538,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4549669694977988}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit21
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -554,7 +553,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4304605599130494}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit23
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -572,7 +571,7 @@ GameObject:
   - component: {fileID: 114226696672560770}
   - component: {fileID: 143621807310257694}
   - component: {fileID: 114685658956772626}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Character
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -587,7 +586,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4105448822998532}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigHub001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -602,7 +601,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4824851442117634}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit23
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -617,7 +616,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4704390301888100}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmPalm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -632,7 +631,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4068175317860292}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmDigit32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -647,7 +646,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4392950060369194}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -662,7 +661,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4748910814891356}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigRArmCollarbone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -677,7 +676,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4394664888173510}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BoneLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -692,7 +691,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4277590989799024}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BoneUp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -707,7 +706,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4045854696344700}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CATRigLArmDigit13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1480,20 +1479,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1084962606800976}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!64 &64753690767662450
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1534486527671272}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 0
-  m_CookingOptions: 14
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!95 &95644341006908416
 Animator:
   serializedVersion: 3
@@ -1527,8 +1512,8 @@ MonoBehaviour:
   gravityVector: {x: 0, y: -20, z: 0}
   dragFactor: 10
   moveSpeed: 60
-  turnSpeed: 4
-  shootDuration: 0.75
+  turnSpeed: 5
+  shootDuration: 0.6
 --- !u!114 &114685658956772626
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1644,10 +1629,10 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 0.5
-  m_Radius: 0.5
-  m_SlopeLimit: 45
+  m_Height: 2.75
+  m_Radius: 0.8
+  m_SlopeLimit: 0
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.87, z: 0}

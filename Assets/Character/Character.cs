@@ -59,13 +59,19 @@ public class Character : MonoBehaviour
 	/// </summary>
 	private float arrowTimer = 0;
 	public bool IsShooting { get { return shootTimer != 0; } }
+	
+
+	public bool isAlive { get; private set; }
+	public bool IsDead { get { return !isAlive; } }
 
 
 
     void Start ()
     {
         characterController = GetComponent<CharacterController>();
-    }
+		isAlive = true;
+
+	}
 
     void Update()
     {
@@ -115,7 +121,11 @@ public class Character : MonoBehaviour
 			if (shootTimer < 0)
 				shootTimer = 0;
 		}
-    }
+
+		// Kill this character
+		if (transform.position.y < -1.0f)
+			isAlive = false;
+	}
 
     /// <summary>
     /// Move the character by some amount (+: forward, -:back)
@@ -124,7 +134,7 @@ public class Character : MonoBehaviour
     public void Move(float amount)
     {
 		// Cannot move while shooting
-		if(!IsShooting)
+		if(!IsShooting && isAlive)
 			deltaMovement += amount * moveSpeed;
     }
 
@@ -134,7 +144,8 @@ public class Character : MonoBehaviour
     /// <param name="amount">+: right, -:left</param>
     public void Turn(float amount)
     {
-        deltaAngle += amount * turnSpeed;
+		if(isAlive)
+			deltaAngle += amount * turnSpeed;
     }
 
     /// <summary>
@@ -143,11 +154,30 @@ public class Character : MonoBehaviour
     /// <returns>If arrow successfully fires</returns>
     public bool Fire()
     {
-		if (IsShooting)
+		if (IsShooting || IsDead)
 			return false;
 
 		arrowTimer = shootDuration * 0.8f;
 		shootTimer = shootDuration;
         return true;
     }
+
+
+	/// <summary>
+	/// Called when this character has successfully shot another character
+	/// </summary>
+	/// <param name="target">The character that has been shot</param>
+	public void OnGoodShot(Character target)
+	{
+	}
+	
+	/// <summary>
+	/// Called when this character has been shot by another character
+	/// </summary>
+	/// <param name="attacker">The character who shot this</param>
+	public void OnBeenShot(Character attacker)
+	{
+		characterController.enabled = false;
+		isAlive = false;
+	}
 }
