@@ -18,6 +18,8 @@ public class Character : MonoBehaviour
     private float moveSpeed = 1.0f;
     [SerializeField]
     private float turnSpeed = 1.0f;
+	[SerializeField]
+	public float shootDuration = 1.0f;
 
 
     /// <summary>
@@ -47,6 +49,16 @@ public class Character : MonoBehaviour
     /// The turning amount for this frame
     /// </summary>
     private float deltaAngle;
+
+	/// <summary>
+	/// The time left until the character is no longer shooting
+	/// </summary>
+	private float shootTimer = 0;
+	/// <summary>
+	/// The time left until the arrow fires
+	/// </summary>
+	private float arrowTimer = 0;
+	public bool IsShooting { get { return shootTimer != 0; } }
 
 
 
@@ -82,6 +94,27 @@ public class Character : MonoBehaviour
 
             trueVelocity = characterController.velocity; // Correct velocity, for any collisions
         }
+
+		// Count down shoot timer
+		if (shootTimer != 0)
+		{
+			// Fire arrow
+			if (arrowTimer != 0)
+			{
+				arrowTimer -= Time.deltaTime;
+				if (arrowTimer < 0)
+				{
+					ArrowProjectile projectile = Instantiate(defaultProjectile.gameObject).GetComponent<ArrowProjectile>();
+					projectile.Fire(this);
+					arrowTimer = 0;
+				}
+			}
+
+			// Wait for shooting to be finished
+			shootTimer -= Time.deltaTime;
+			if (shootTimer < 0)
+				shootTimer = 0;
+		}
     }
 
     /// <summary>
@@ -90,7 +123,9 @@ public class Character : MonoBehaviour
     /// <param name="amount">+: forward, -:back</param>
     public void Move(float amount)
     {
-        deltaMovement += amount * moveSpeed;
+		// Cannot move while shooting
+		if(!IsShooting)
+			deltaMovement += amount * moveSpeed;
     }
 
     /// <summary>
@@ -108,8 +143,11 @@ public class Character : MonoBehaviour
     /// <returns>If arrow successfully fires</returns>
     public bool Fire()
     {
-        ArrowProjectile projectile = Instantiate(defaultProjectile.gameObject).GetComponent<ArrowProjectile>();
-        projectile.Fire(this);
+		if (IsShooting)
+			return false;
+
+		arrowTimer = shootDuration * 0.8f;
+		shootTimer = shootDuration;
         return true;
     }
 }

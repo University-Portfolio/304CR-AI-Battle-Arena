@@ -140,6 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bfa052c857907d4eac254b14731252e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animatedTransform: {fileID: 4743785852230358}
   speed: 20
 --- !u!135 &135479162664542522
 SphereCollider:

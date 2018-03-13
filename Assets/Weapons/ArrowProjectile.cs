@@ -17,17 +17,19 @@ public class ArrowProjectile : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    private float speed = 10.0f;
+	[SerializeField]
+	private Transform animatedTransform;
+	[SerializeField]
+	private float speed = 10.0f;
 
-    private Character owner;
+	private Character owner;
     private bool inFlight = false;
 
 	
 	void Update ()
     {
         if(inFlight)
-            transform.forward = body.velocity;
+			animatedTransform.forward = body.velocity;
     }
 
     public void Fire(Character archer)
