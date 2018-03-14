@@ -570,7 +570,6 @@ GameObject:
   - component: {fileID: 4864308244441092}
   - component: {fileID: 114226696672560770}
   - component: {fileID: 143621807310257694}
-  - component: {fileID: 114685658956772626}
   m_Layer: 8
   m_Name: Character
   m_TagString: Untagged
@@ -1514,17 +1513,6 @@ MonoBehaviour:
   moveSpeed: 60
   turnSpeed: 5
   shootDuration: 0.6
---- !u!114 &114685658956772626
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1818482499165082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93eb2d9637bf603498c648a475c228de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114766526707172106
 MonoBehaviour:
   m_ObjectHideFlags: 1

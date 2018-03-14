@@ -39,7 +39,7 @@ public class Character : MonoBehaviour
     /// <summary>
     /// The angle that the direction is currently looking
     /// </summary>
-    private float directionAngle = 0.0f;
+    internal float directionAngle = 0.0f;
 
     /// <summary>
     /// The movement vector for this frame
@@ -123,8 +123,11 @@ public class Character : MonoBehaviour
 		}
 
 		// Kill this character
-		if (transform.position.y < -1.0f)
+		if (transform.position.y < -30.0f)
+		{
 			isAlive = false;
+			characterController.enabled = false;
+		}
 	}
 
     /// <summary>
