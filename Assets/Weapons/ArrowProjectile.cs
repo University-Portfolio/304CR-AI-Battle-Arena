@@ -14,7 +14,7 @@ public class ArrowProjectile : MonoBehaviour
 	private float speed = 10.0f;
 
 	private Character owner;
-    private bool inFlight = false;
+    public bool inFlight { get; private set; }
 
 	/// <summary>
 	/// How long until this arrow is destroyed

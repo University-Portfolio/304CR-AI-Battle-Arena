@@ -75,6 +75,9 @@ public class Character : MonoBehaviour
 
     void Update()
     {
+        if (IsDead)
+            return;
+
         // Turning
         {
             directionAngle = (directionAngle + Mathf.Clamp(deltaAngle, -turnSpeed, turnSpeed) * Time.deltaTime) % (Mathf.PI * 2.0f);

@@ -22,7 +22,7 @@ public class StageController : MonoBehaviour
 	{
 		currentSize = startSize;
 		transform.localScale = new Vector3(currentSize, transform.localScale.y, currentSize);
-	}
+    }
 	
 	void Update ()
 	{
