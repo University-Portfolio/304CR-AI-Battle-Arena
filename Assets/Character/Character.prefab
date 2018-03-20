@@ -570,6 +570,8 @@ GameObject:
   - component: {fileID: 4864308244441092}
   - component: {fileID: 114226696672560770}
   - component: {fileID: 143621807310257694}
+  - component: {fileID: 114957254070292026}
+  - component: {fileID: 114284799711837404}
   m_Layer: 8
   m_Name: Character
   m_TagString: Player
@@ -1512,7 +1514,19 @@ MonoBehaviour:
   dragFactor: 10
   moveSpeed: 60
   turnSpeed: 5
-  shootDuration: 0.6
+  shootDuration: 0.5
+--- !u!114 &114284799711837404
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1818482499165082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 457f529c920235f40bd40947b1b708ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayScale: 1.5
 --- !u!114 &114766526707172106
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1525,6 +1539,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   character: {fileID: 114226696672560770}
+--- !u!114 &114957254070292026
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1818482499165082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93eb2d9637bf603498c648a475c228de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!137 &137037344697591086
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

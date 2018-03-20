@@ -7,35 +7,20 @@ using UnityEngine.UI;
 public class NetworkPreview : MonoBehaviour
 {
     [SerializeField]
-    private RectTransform defaultDisplay;
-    private RawImage[,] display;
+    private RawImage display;
+
+	private Texture2D m_texture;
 
     [SerializeField]
     private NeuralInput currentInput;
 
     void Start ()
     {
-        // Duplicate the display object to fill with pixels
-        Rect pixelRect = defaultDisplay.rect;
-        display = new RawImage[NeuralInput.ViewResolution, NeuralInput.ViewResolution];
-
-        pixelRect.width /= NeuralInput.ViewResolution;
-        pixelRect.height /= NeuralInput.ViewResolution;
-
-        for (int x = 0; x < NeuralInput.ViewResolution; ++x)
-            for (int y = 0; y < NeuralInput.ViewResolution; ++y)
-            {
-                RectTransform pixel = Instantiate(defaultDisplay.gameObject, defaultDisplay.transform.parent).GetComponent<RectTransform>();
-                pixel.position = new Vector2(defaultDisplay.position.x + pixelRect.width * x, defaultDisplay.position.y - pixelRect.height * y);
-                pixel.sizeDelta = new Vector2(pixelRect.width, pixelRect.height);
-
-                pixel.gameObject.name = "Pixel (" + x + ", " + y + ")";
-                display[x, y] = pixel.GetComponent<RawImage>();
-            }
-
-
-        Destroy(defaultDisplay.gameObject);
-    }
+		m_texture = new Texture2D(NeuralInput.ViewResolution, NeuralInput.ViewResolution);
+		m_texture.filterMode = FilterMode.Point;
+		m_texture.wrapMode = TextureWrapMode.Clamp;
+		display.texture = m_texture;
+	}
 	
 	void Update ()
     {
@@ -45,14 +30,16 @@ public class NetworkPreview : MonoBehaviour
         for (int x = 0; x < NeuralInput.ViewResolution; ++x)
             for (int y = 0; y < NeuralInput.ViewResolution; ++y)
             {
-                if (currentInput.display[x, y].arrow != 0.0f)
-                    display[x, y].color = Color.red;
+				if (currentInput.display[x, y].arrow != 0.0f)
+					m_texture.SetPixel(x, y, Color.red);
                 else if (currentInput.display[x, y].character != 0.0f)
-                    display[x, y].color = Color.black;
+					m_texture.SetPixel(x, y, Color.black);
                 else if (currentInput.display[x, y].stage != 0.0f)
-                    display[x, y].color = Color.white;
-                else
-                    display[x, y].color = new Color(0, 0, 0, 0.2f);
+					m_texture.SetPixel(x, y, Color.white);
+				else
+					m_texture.SetPixel(x, y, new Color(0, 0, 0, 0.2f));
             }
-    }
+
+		m_texture.Apply(false, false);
+	}
 }

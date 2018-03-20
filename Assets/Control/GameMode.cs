@@ -70,6 +70,10 @@ public class GameMode : MonoBehaviour
 
 			if (spawnPlayer && i == 0)
 				characters[i].gameObject.AddComponent<PlayerInput>();
+			else
+			{
+				characters[i].gameObject.AddComponent<NeuralInput>();
+			}
 		}
 	}
 

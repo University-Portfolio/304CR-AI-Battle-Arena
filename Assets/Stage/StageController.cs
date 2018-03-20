@@ -35,13 +35,17 @@ public class StageController : MonoBehaviour
 
 		currentSize -= decayRate * Time.deltaTime;
 		if (currentSize < 0)
+		{
 			currentSize = 0;
+			gameObject.SetActive(false);
+		}
 
 		transform.localScale = new Vector3(currentSize, transform.localScale.y, currentSize);
 	}
 
 	public void ResetStage()
 	{
+		gameObject.SetActive(true);
 		delayTimer = 3.0f;
 		currentSize = startSize;
 		transform.localScale = new Vector3(currentSize, transform.localScale.y, currentSize);

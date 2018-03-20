@@ -53,16 +53,8 @@ public class ArrowProjectile : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-		// Stop arrow
-		if (collision.gameObject.CompareTag("Stage"))
-		{
-			inFlight = false;
-			GetComponent<Collider>().enabled = false;
-			body.isKinematic = true;
-		}
-
 		// Attempt to attack another character
-		else if(inFlight)
+		if(inFlight)
 		{
 			Character character = collision.gameObject.GetComponent<Character>();
 
@@ -73,5 +65,7 @@ public class ArrowProjectile : MonoBehaviour
 				character.OnBeenShot(owner);
 			}
 		}
-    }
+
+		Destroy(gameObject);
+	}
 }

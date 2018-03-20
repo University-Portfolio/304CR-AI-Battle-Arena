@@ -10,7 +10,9 @@ public class Character : MonoBehaviour
     [SerializeField]
     private ArrowProjectile defaultProjectile;
 
-    [SerializeField]
+	public ArrowProjectile currentProjectile { get; private set; }
+
+	[SerializeField]
     private Vector3 gravityVector = Vector3.down;
     [SerializeField]
     private float dragFactor = 1.0f;
@@ -113,8 +115,12 @@ public class Character : MonoBehaviour
 				arrowTimer -= Time.deltaTime;
 				if (arrowTimer < 0)
 				{
-					ArrowProjectile projectile = Instantiate(defaultProjectile.gameObject).GetComponent<ArrowProjectile>();
-					projectile.Fire(this);
+					// Remove current projectile
+					if (currentProjectile != null)
+						Destroy(currentProjectile.gameObject);
+
+					currentProjectile = Instantiate(defaultProjectile.gameObject).GetComponent<ArrowProjectile>();
+					currentProjectile.Fire(this);
 					arrowTimer = 0;
 				}
 			}

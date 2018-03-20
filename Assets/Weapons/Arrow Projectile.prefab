@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animatedTransform: {fileID: 4743785852230358}
-  speed: 20
+  speed: 30
 --- !u!135 &135479162664542522
 SphereCollider:
   m_ObjectHideFlags: 1
