@@ -39,7 +39,7 @@ public class GameMode : MonoBehaviour
 
 		characters = new Character[characterCount];
 		SpawnCharacters(false);
-	}
+    }
 	
 	void Update ()
 	{
