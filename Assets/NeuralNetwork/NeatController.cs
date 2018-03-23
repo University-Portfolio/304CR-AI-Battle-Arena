@@ -14,6 +14,16 @@ public class NeatController
     private int innovationCounter = 0;
     private Dictionary<Vector2Int, int> innovationIds;
 
+    /// <summary>
+    /// The chance of structural mutations for a genome
+    /// </summary>
+    public float structuralMutationChance = 0.25f;
+
+    /// <summary>
+    /// The chance of any change in weight occuring for a genome
+    /// </summary>
+    public float weightMutationChance = 0.80f;
+
 
     /// <summary>
     /// Safely retreive (or create) a innovation number for a gene

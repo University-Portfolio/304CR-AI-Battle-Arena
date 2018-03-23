@@ -21,6 +21,12 @@ public class NeatNetwork
     public readonly int outputCount;
 
 
+    /// <summary>
+    /// The fitness of this network
+    /// </summary>
+    public float fitness;
+
+
     public NeatNetwork(NeatController controller, int inputCount, int outputCount)
     {
         this.controller = controller;
@@ -64,8 +70,14 @@ public class NeatNetwork
     /// <returns>The newly created gene object</returns>
     private NeatGene CreateGene(int fromNodeId, int toNodeId)
     {
+        Vector2Int key = new Vector2Int(fromNodeId, toNodeId);
+
+        // Check gene doesn't alreay exist (DEBUG)
+        if (genes.ContainsKey(key))
+            Debug.LogError("Gene from (" + fromNodeId + "->" + toNodeId + ") already exists in this genome");
+
         NeatGene gene = new NeatGene(controller.FetchInnovationId(fromNodeId, toNodeId), fromNodeId, toNodeId, Random.Range(-1.0f, 1.0f));
-        genes[new Vector2Int(fromNodeId, toNodeId)] = gene;
+        genes[key] = gene;
 
         nodes[fromNodeId].outputGenes.Add(gene);
         nodes[toNodeId].inputGenes.Add(gene);
@@ -101,5 +113,47 @@ public class NeatNetwork
             output[i] = nodes[inputCount + i].CalculateValue(nodes);
 
         return output;
+    }
+
+
+    /// <summary>
+    /// Create random mutations in the network
+    /// </summary>
+    public void CreateMutations()
+    {
+        // Mutate weights
+        foreach (var pair in genes)
+        {
+            NeatGene gene = pair.Value;
+            float chance = Random.value;
+
+            if (chance <= controller.weightMutationChance)
+            {
+                // Change type of weight mutation
+                float subChance = Random.value;
+
+                // Flip sign of weight
+                if (subChance <= 0.2f)
+                    gene.weight *= -1.0f;
+
+                // Pick a random weight [-1,1]
+                else if (subChance <= 0.4f)
+                    gene.weight = Random.Range(-1.0f, 1.0f);
+
+                // Increase weight in range of [0%,100%]
+                else if (subChance <= 0.6f)
+                    gene.weight *= 1.0f + Random.value;
+
+                // Decrease weight in range of [0%,100%]
+                else if (subChance <= 0.8f)
+                    gene.weight *= Random.value;
+
+                // Flip enabled state for gene
+                else
+                    gene.isEnabled = !gene.isEnabled;
+            }
+        }
+
+
     }
 }
