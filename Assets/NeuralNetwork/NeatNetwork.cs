@@ -43,13 +43,13 @@ public class NeatNetwork
 
 		// The first I nodes will be inputs and the following O nodes will be outputs
 		for (int i = 0; i < inputCount; ++i)
-			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Input));
+			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Input, this));
 
 		for (int i = 0; i < biasInputCount; ++i)
-			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.BiasInput));
+			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.BiasInput, this));
 
 		for (int i = 0; i < outputCount; ++i)
-			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Output));
+			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Output, this));
 
 
 		//
@@ -110,7 +110,7 @@ public class NeatNetwork
         // Convert output nodes into array of values
         float[] output = new float[outputCount];
         for (int i = 0; i < outputCount; ++i)
-            output[i] = nodes[inputCount + i].CalculateValue(nodes);
+            output[i] = nodes[inputCount + i].CalculateValue();
 
         return output;
     }
@@ -185,7 +185,7 @@ public class NeatNetwork
 			int toId = Random.Range(inputCount, nodes.Count);
 
 			// Prevent from node being output node
-			if (fromId >= inputCount)
+			if (fromId > inputCount)
 				fromId += outputCount;
 			
 
@@ -216,7 +216,7 @@ public class NeatNetwork
 				continue;
 
 			// Add the node
-			NeatNode newNode = new NeatNode(nodes.Count, NeatNode.NodeType.Hidden);
+			NeatNode newNode = new NeatNode(nodes.Count, NeatNode.NodeType.Hidden, this);
 			nodes.Add(newNode);
 
 			// Disable old gene and add connected genes to new node

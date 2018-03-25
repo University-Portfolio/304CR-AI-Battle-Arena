@@ -53,10 +53,7 @@ public class NeuralInput : MonoBehaviour
 		// DEBUG: TODO REMOVE
 		NeatController controller = new NeatController();
 		network = new NeatNetwork(controller, networkInput.Length, 3);
-
-		network.AddMutatedConnection();
-		network.AddMutatedConnection();
-		network.AddMutatedConnection();
+		
 		//network.CreateMutations();
 	}
 	
@@ -80,7 +77,29 @@ public class NeuralInput : MonoBehaviour
 		// Output 2: Shoot 
 		if(networkOutput[2] >= 0.5f)
 			character.Fire();
+
+		// DEBUG
+		if (Input.GetKeyDown(KeyCode.N))
+		{
+			network.AddMutatedNode();
+			DEBUG_REBUILD = true;
+		}
+		if (Input.GetKeyDown(KeyCode.C))
+		{
+			network.AddMutatedConnection();
+			DEBUG_REBUILD = true;
+		}
+		if (Input.GetKeyDown(KeyCode.W))
+		{
+			network.MutateWeights();
+		}
+		if (Input.GetKeyDown(KeyCode.A))
+		{
+			network.CreateMutations();
+			DEBUG_REBUILD = true;
+		}
 	}
+	public bool DEBUG_REBUILD = false;
 
 
 #if UNITY_EDITOR

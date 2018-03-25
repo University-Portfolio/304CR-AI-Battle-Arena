@@ -69,6 +69,12 @@ public class NetworkPreview : MonoBehaviour
 		// DEBUG
 		if (DebugTarget != currentTarget)
 			SetVisualisation(DebugTarget);
+
+		if (currentTarget != null && currentTarget.DEBUG_REBUILD)
+		{
+			SetVisualisation(currentTarget);
+			currentTarget.DEBUG_REBUILD = false;
+		}
 	}
 
 	/// <summary>
@@ -79,6 +85,8 @@ public class NetworkPreview : MonoBehaviour
 	{
 		currentTarget = input;
 		bool initialised = nodes.Count != 0;
+
+
 
 		// Spawn input nodes
 		if (!initialised)
@@ -126,6 +134,7 @@ public class NetworkPreview : MonoBehaviour
 		}
 
 
+
 		// Spawn output nodes
 		if (!initialised)
 		{
@@ -156,11 +165,66 @@ public class NetworkPreview : MonoBehaviour
 			}
 		}
 
-		// TODO - Spawn the rest of the nodes
+
+
+		// Spawn hidden nodes
+		List<KeyValuePair<int, NetworkNode>> delete = new List<KeyValuePair<int, NetworkNode>>();
+		foreach (var pair in nodes)
+		{
+			if (pair.Key >= input.network.inputCount + input.network.outputCount)
+			{
+				Destroy(pair.Value.gameObject);
+				delete.Add(pair);
+			}
+		}
+		foreach(var pair in delete)
+			nodes.Remove(pair.Key);
+
+
+		// Construct layers, to display
+		Dictionary<int, List<NeatNode>> layers = new Dictionary<int, List<NeatNode>>();
+		for (int i = input.network.inputCount + input.network.outputCount; i < input.network.nodes.Count; ++i)
+		{
+			NeatNode logicNode = input.network.nodes[i];
+			int distance = logicNode.FurthestDistanceFromOutput();
+
+			if (!layers.ContainsKey(distance))
+				layers[distance] = new List<NeatNode>();
+			layers[distance].Add(logicNode);
+		}
+
+		// Draw nodes as layers
+		Vector3 hiddenAnchor = hiddenSection.position + new Vector3(-hiddenSection.sizeDelta.x * 0.5f, hiddenSection.sizeDelta.y * 0.5f);
+
+		foreach (var layer in layers)
+		{
+			int layerIndex = layers.Count - layer.Key;
+			int nodeCount = layer.Value.Count;
+
+			for (int i = 0; i < nodeCount; ++i)
+			{
+				Vector2 step = new Vector2(hiddenSection.sizeDelta.x / layers.Count, hiddenSection.sizeDelta.y / nodeCount);
+
+				NetworkNode node = Instantiate(defaultNode, hiddenSection);
+				NeatNode logicNode = layer.Value[i];
+				
+				RectTransform nodeRect = node.GetComponent<RectTransform>();
+				nodeRect.position = hiddenAnchor + new Vector3(layerIndex * step.x, -i * step.y) + new Vector3(nodeRect.sizeDelta.x * 0.5f, -nodeRect.sizeDelta.y * 0.5f);
+
+				// Update visual and cache
+				node.SetVisualisation(logicNode);
+				nodes[node.netNode.ID] = node;
+			}
+		}
+
 
 
 		// Add genes
-		foreach(NeatGene logicGene in input.network.genes)
+		foreach (var pair in genes)
+			Destroy(pair.Value.gameObject);
+		genes.Clear();
+
+		foreach (NeatGene logicGene in input.network.genes)
 		{
 			if (!logicGene.isEnabled)
 				continue;

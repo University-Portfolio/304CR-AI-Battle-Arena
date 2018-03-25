@@ -390,7 +390,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultCharacter: {fileID: 114226696672560770, guid: b92b2d42acbdbd04eab227f95d0625bc,
     type: 2}
-  characterCount: 30
+  characterCount: 1
 --- !u!4 &881392845
 Transform:
   m_ObjectHideFlags: 0
@@ -526,8 +526,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 369.4, y: -100}
-  m_SizeDelta: {x: 338.8, y: 200}
+  m_AnchoredPosition: {x: 407.825, y: -100}
+  m_SizeDelta: {x: 415.65, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1293889158
 Prefab:

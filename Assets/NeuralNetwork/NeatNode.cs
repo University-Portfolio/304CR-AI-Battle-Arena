@@ -27,6 +27,11 @@ public class NeatNode
     /// </summary>
     public readonly int ID;
 
+	/// <summary>
+	/// The network this node is a part of
+	/// </summary>
+	public readonly NeatNetwork network;
+
 
     /// <summary>
     /// Genes entering this node
@@ -62,12 +67,14 @@ public class NeatNode
 	private bool workingOutValue = false;
 
 
-    public NeatNode(int ID, NodeType type)
+    public NeatNode(int ID, NodeType type, NeatNetwork network)
     {
         this.ID = ID;
         this.type = type;
+		this.network = network;
 
-        this.inputGenes = new List<NeatGene>();
+
+		this.inputGenes = new List<NeatGene>();
         this.outputGenes = new List<NeatGene>();
 
         if (type == NodeType.BiasInput)
@@ -81,7 +88,7 @@ public class NeatNode
     /// </summary>
     /// <param name="network">List of all the nodes in the network</param>
     /// <returns>The activated value for this node</returns>
-    public float CalculateValue(List<NeatNode> network)
+    public float CalculateValue()
     {
         if (type == NodeType.BiasInput)
             return 1.0f;
@@ -102,8 +109,8 @@ public class NeatNode
             if (!input.isEnabled)
                 continue;
 
-            NeatNode inNode = network[input.fromNodeId];
-            _workingValue += inNode.CalculateValue(network) * input.weight;
+            NeatNode inNode = network.nodes[input.fromNodeId];
+            _workingValue += inNode.CalculateValue() * input.weight;
         }
 
 
@@ -114,4 +121,28 @@ public class NeatNode
 		
 		return _workingValue;
     }
+
+	/// <summary>
+	/// Furthest path to output
+	/// </summary>
+	/// <returns></returns>
+	public int FurthestDistanceFromOutput()
+	{
+		if (type == NodeType.Output)
+			return 0;
+		else
+		{
+			int furthest = 0;
+
+			for (int i = 0; i < outputGenes.Count; ++i)
+			{
+				int distance = network.nodes[outputGenes[i].toNodeId].FurthestDistanceFromOutput();
+				
+				if(distance > furthest)
+					furthest = distance;
+			}
+
+			return furthest + 1;
+		}
+	}
 }
