@@ -14,8 +14,8 @@ public class NeatNetwork
     public readonly NeatController controller;
 
 
-    private List<NeatNode> nodes;
-	private List<NeatGene> genes;
+    public List<NeatNode> nodes { get; private set; }
+	public List<NeatGene> genes { get; private set; }
 	private Dictionary<Vector2Int, NeatGene> geneTable;
 
     public readonly int inputCount;
@@ -28,39 +28,38 @@ public class NeatNetwork
     public float fitness;
 
 
-    public NeatNetwork(NeatController controller, int inputCount, int outputCount)
+    public NeatNetwork(NeatController controller, int inputCount, int outputCount, int biasInputCount = 1)
     {
         this.controller = controller;
 
-        this.inputCount = inputCount;
+        this.inputCount = inputCount + biasInputCount;
         this.outputCount = outputCount;
 
-        InitializeNetwork();
-    }
-
-    /// <summary>
-    /// Create the initial nodes and genes for the starting network
-    /// </summary>
-    private void InitializeNetwork()
-	{
+		// Initialise network
 		nodes = new List<NeatNode>();
 		genes = new List<NeatGene>();
 		geneTable = new Dictionary<Vector2Int, NeatGene>();
 
 
-        // The first I nodes will be inputs and the following O nodes will be outputs
-        for (int i = 0; i < inputCount; ++i)
-            nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Input));
+		// The first I nodes will be inputs and the following O nodes will be outputs
+		for (int i = 0; i < inputCount; ++i)
+			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Input));
 
-        for (int i = 0; i < outputCount; ++i)
-            nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Output));
+		for (int i = 0; i < biasInputCount; ++i)
+			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.BiasInput));
+
+		for (int i = 0; i < outputCount; ++i)
+			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Output));
 
 
-        // Create initial (minimal genes) connection inputs to outputs
-        for (int i = 0; i < inputCount; ++i)
-            for (int j = 0; j < outputCount; ++j)
-				CreateGene(i, j);
-    }
+		//
+		// Avoid creation of non-essential genes (Requires testing)
+		//
+		// Create initial (minimal genes) connection inputs to outputs
+		//for (int i = 0; i < inputCount; ++i)
+		//    for (int j = 0; j < outputCount; ++j)
+		//		CreateGene(i, inputCount + j);
+	}
 
     /// <summary>
     /// Create a gene between 2 nodes
@@ -93,7 +92,7 @@ public class NeatNetwork
     public float[] GenerateOutput(float[] input)
     {
         // Set the input node values
-        for (int i = 0; i < inputCount; ++i)
+        for (int i = 0; i < input.Length; ++i)
         {
             nodes[i].WorkingValue = input[i];
             nodes[i].workingValueFinal = false;
@@ -140,7 +139,7 @@ public class NeatNetwork
 	/// <summary>
 	/// Randomly selects genes and alter their weights
 	/// </summary>
-	private void MutateWeights()
+	public void MutateWeights()
 	{
 		foreach (NeatGene gene in genes)
 		{
@@ -177,7 +176,7 @@ public class NeatNetwork
 	/// <summary>
 	/// Attempt to randomly connect a pair of unconnected nodes
 	/// </summary>
-	private void AddMutatedConnection()
+	public void AddMutatedConnection()
 	{
 		// 30 attempts to create a gene
 		for (int i = 0; i<30; ++i)
@@ -201,8 +200,11 @@ public class NeatNetwork
 	/// <summary>
 	/// Randomly place a node in the middle of an existing gene
 	/// </summary>
-	private void AddMutatedNode()
+	public void AddMutatedNode()
 	{
+		if (genes.Count == 0)
+			return;
+
 		// 30 attempts to create a node
 		for (int i = 0; i < 30; ++i)
 		{
