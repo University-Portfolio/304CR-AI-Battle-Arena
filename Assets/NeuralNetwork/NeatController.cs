@@ -42,4 +42,15 @@ public class NeatController
             return innovationIds[key];
         }
     }
+
+	/// <summary>
+	/// Does a gene exist which connects these 2 nodes
+	/// </summary>
+	/// <param name="fromNodeId">The id of the node the gene starts at</param>
+	/// <param name="toNodeId">The id of the node the gene ends at</param>
+	/// <returns>True if the gene exists</returns>
+	public bool DoesGeneExist(int fromNodeId, int toNodeId)
+	{
+		return innovationIds.ContainsKey(new Vector2Int(fromNodeId, toNodeId));
+	}
 }

@@ -59,6 +59,7 @@ public class NeatNode
     /// Is the current working value the final value
     /// </summary>
     public bool workingValueFinal = false;
+	private bool workingOutValue = false;
 
 
     public NeatNode(int ID, NodeType type)
@@ -87,11 +88,15 @@ public class NeatNode
         else if (type == NodeType.Input || workingValueFinal)
             return _workingValue; // Value is set or cached for us
 
+		else if(workingOutValue) // Can only really return approximation (Occurs in event of loop)
+			return (float)Math.Tanh(_workingValue);
 
-        // Haven't worked out the value yet, so need to work it out now
-        _workingValue = 0.0f;
 
-        foreach (NeatGene input in inputGenes)
+		// Haven't worked out the value yet, so need to work it out now
+		_workingValue = 0.0f;
+		workingOutValue = true;
+
+		foreach (NeatGene input in inputGenes)
         {
             // Only considered enabled genes
             if (!input.isEnabled)
@@ -104,8 +109,9 @@ public class NeatNode
 
         // Pass summation through activation function and cache until net inputs
         _workingValue = (float)Math.Tanh(_workingValue);
-        workingValueFinal = true;
-
-        return _workingValue;
+		workingValueFinal = true;
+		workingOutValue = false;
+		
+		return _workingValue;
     }
 }

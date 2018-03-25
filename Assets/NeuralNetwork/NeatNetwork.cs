@@ -15,7 +15,8 @@ public class NeatNetwork
 
 
     private List<NeatNode> nodes;
-    private Dictionary<Vector2Int, NeatGene> genes;
+	private List<NeatGene> genes;
+	private Dictionary<Vector2Int, NeatGene> geneTable;
 
     public readonly int inputCount;
     public readonly int outputCount;
@@ -41,9 +42,10 @@ public class NeatNetwork
     /// Create the initial nodes and genes for the starting network
     /// </summary>
     private void InitializeNetwork()
-    {
-        nodes = new List<NeatNode>();
-        genes = new Dictionary<Vector2Int, NeatGene>();
+	{
+		nodes = new List<NeatNode>();
+		genes = new List<NeatGene>();
+		geneTable = new Dictionary<Vector2Int, NeatGene>();
 
 
         // The first I nodes will be inputs and the following O nodes will be outputs
@@ -57,9 +59,7 @@ public class NeatNetwork
         // Create initial (minimal genes) connection inputs to outputs
         for (int i = 0; i < inputCount; ++i)
             for (int j = 0; j < outputCount; ++j)
-            {
-                genes[new Vector2Int(i, j)] = new NeatGene(controller.FetchInnovationId(i, j), i, j, Random.Range(-1.0f, 1.0f));
-            }
+				CreateGene(i, j);
     }
 
     /// <summary>
@@ -73,11 +73,12 @@ public class NeatNetwork
         Vector2Int key = new Vector2Int(fromNodeId, toNodeId);
 
         // Check gene doesn't alreay exist (DEBUG)
-        if (genes.ContainsKey(key))
+        if (geneTable.ContainsKey(key))
             Debug.LogError("Gene from (" + fromNodeId + "->" + toNodeId + ") already exists in this genome");
 
         NeatGene gene = new NeatGene(controller.FetchInnovationId(fromNodeId, toNodeId), fromNodeId, toNodeId, Random.Range(-1.0f, 1.0f));
-        genes[key] = gene;
+		genes.Add(gene);
+		geneTable[key] = gene;
 
         nodes[fromNodeId].outputGenes.Add(gene);
         nodes[toNodeId].inputGenes.Add(gene);
@@ -121,39 +122,106 @@ public class NeatNetwork
     /// </summary>
     public void CreateMutations()
     {
-        // Mutate weights
-        foreach (var pair in genes)
-        {
-            NeatGene gene = pair.Value;
-            float chance = Random.value;
+		// Change weights
+		MutateWeights();
+		float chance;
 
-            if (chance <= controller.weightMutationChance)
-            {
-                // Change type of weight mutation
-                float subChance = Random.value;
+		// Add connection
+		chance = Random.value;
+		if (chance <= controller.structuralMutationChance)
+			AddMutatedConnection();
 
-                // Flip sign of weight
-                if (subChance <= 0.2f)
-                    gene.weight *= -1.0f;
+		// Add node
+		chance = Random.value;
+		if (chance <= controller.structuralMutationChance)
+			AddMutatedNode();
+	}
 
-                // Pick a random weight [-1,1]
-                else if (subChance <= 0.4f)
-                    gene.weight = Random.Range(-1.0f, 1.0f);
+	/// <summary>
+	/// Randomly selects genes and alter their weights
+	/// </summary>
+	private void MutateWeights()
+	{
+		foreach (NeatGene gene in genes)
+		{
+			float chance = Random.value;
 
-                // Increase weight in range of [0%,100%]
-                else if (subChance <= 0.6f)
-                    gene.weight *= 1.0f + Random.value;
+			if (chance <= controller.weightMutationChance)
+			{
+				// Change type of weight mutation
+				float subChance = Random.value;
 
-                // Decrease weight in range of [0%,100%]
-                else if (subChance <= 0.8f)
-                    gene.weight *= Random.value;
+				// Flip sign of weight
+				if (subChance <= 0.2f)
+					gene.weight *= -1.0f;
 
-                // Flip enabled state for gene
-                else
-                    gene.isEnabled = !gene.isEnabled;
-            }
-        }
+				// Pick a random weight [-1,1]
+				else if (subChance <= 0.4f)
+					gene.weight = Random.Range(-1.0f, 1.0f);
 
+				// Increase weight in range of [0%,100%]
+				else if (subChance <= 0.6f)
+					gene.weight *= 1.0f + Random.value;
 
-    }
+				// Decrease weight in range of [0%,100%]
+				else if (subChance <= 0.8f)
+					gene.weight *= Random.value;
+
+				// Flip enabled state for gene
+				else
+					gene.isEnabled = !gene.isEnabled;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Attempt to randomly connect a pair of unconnected nodes
+	/// </summary>
+	private void AddMutatedConnection()
+	{
+		// 30 attempts to create a gene
+		for (int i = 0; i<30; ++i)
+		{
+			int fromId = Random.Range(0, nodes.Count - outputCount);
+			int toId = Random.Range(inputCount, nodes.Count);
+
+			// Prevent from node being output node
+			if (fromId >= inputCount)
+				fromId += outputCount;
+			
+
+			if (!controller.DoesGeneExist(fromId, toId))
+			{
+				CreateGene(fromId, toId);
+				return;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Randomly place a node in the middle of an existing gene
+	/// </summary>
+	private void AddMutatedNode()
+	{
+		// 30 attempts to create a node
+		for (int i = 0; i < 30; ++i)
+		{
+			int geneId = Random.Range(0, genes.Count);
+			NeatGene gene = genes[geneId];
+
+			// Only add node in enabled genes
+			if (!gene.isEnabled)
+				continue;
+
+			// Add the node
+			NeatNode newNode = new NeatNode(nodes.Count, NeatNode.NodeType.Hidden);
+			nodes.Add(newNode);
+
+			// Disable old gene and add connected genes to new node
+			gene.isEnabled = false;
+			CreateGene(gene.fromNodeId, newNode.ID).weight = 1.0f; // Use 1.0 to avoid initial impact of adding the node
+			CreateGene(newNode.ID, gene.toNodeId).weight = gene.weight;
+			return;
+		}
+	}
 }
