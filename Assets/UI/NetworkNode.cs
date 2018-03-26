@@ -27,12 +27,12 @@ public class NetworkNode : MonoBehaviour
 	/// Update this visualisation
 	/// </summary>
 	/// <param name="node">The node for which this is a visualisation of</param>
-	public void SetVisualisation(NeatNode node)
+	public void SetVisualisation(NeatNode node, bool isHidden = false)
 	{
 		netNode = node;
 
 		// Disable visual for input nodes
-		gameObject.SetActive(netNode.type != NeatNode.NodeType.Input);
+		gameObject.SetActive(!isHidden);
 	}
 
 	
@@ -42,7 +42,7 @@ public class NetworkNode : MonoBehaviour
 			return;
 
 		// Change colour based on the current readings
-		float value = netNode.WorkingValue;
+		float value = netNode.workingValue;
 		if (value < 0)
 			visual.color = inactiveColour;
 		else

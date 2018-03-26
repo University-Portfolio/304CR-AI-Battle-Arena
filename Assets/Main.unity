@@ -352,7 +352,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   display: {fileID: 1746488854}
+  displayTexture: {fileID: 0}
   DebugTarget: {fileID: 0}
+  currentTarget: {fileID: 0}
   defaultNode: {fileID: 114674676336295180, guid: b443669176e8c094cb5c00f4909f7806,
     type: 2}
   defaultGene: {fileID: 114593690317226678, guid: dc9542973455d2f408dbdcc0d0d063ab,
@@ -390,7 +392,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultCharacter: {fileID: 114226696672560770, guid: b92b2d42acbdbd04eab227f95d0625bc,
     type: 2}
-  characterCount: 1
+  characterCount: 30
+  <stage>k__BackingField: {fileID: 0}
+  <characters>k__BackingField: []
 --- !u!4 &881392845
 Transform:
   m_ObjectHideFlags: 0

@@ -12,7 +12,6 @@ public class NeatNode
     public enum NodeType
     {
         Input,
-        BiasInput,
         Output,
         Hidden
     }
@@ -47,18 +46,7 @@ public class NeatNode
     /// <summary>
     /// The current working weight for this node
     /// </summary>
-    public float WorkingValue
-    {
-        get
-        {
-            if (type == NodeType.BiasInput)
-                return 1.0f;
-            else
-                return _workingValue;
-        }
-        set { _workingValue = value; }
-    }
-    private float _workingValue;
+    public float workingValue;
 
     /// <summary>
     /// Is the current working value the final value
@@ -76,11 +64,7 @@ public class NeatNode
 
 		this.inputGenes = new List<NeatGene>();
         this.outputGenes = new List<NeatGene>();
-
-        if (type == NodeType.BiasInput)
-            _workingValue = 1.0f;
-        else
-            _workingValue = 0.0f;
+        workingValue = 0.0f;
     }
 
     /// <summary>
@@ -90,17 +74,15 @@ public class NeatNode
     /// <returns>The activated value for this node</returns>
     public float CalculateValue()
     {
-        if (type == NodeType.BiasInput)
-            return 1.0f;
-        else if (type == NodeType.Input || workingValueFinal)
-            return _workingValue; // Value is set or cached for us
+        if (type == NodeType.Input || workingValueFinal)
+            return workingValue; // Value is set or cached for us
 
 		else if(workingOutValue) // Can only really return approximation (Occurs in event of loop)
-			return (float)Math.Tanh(_workingValue);
+			return (float)Math.Tanh(workingValue);
 
 
-		// Haven't worked out the value yet, so need to work it out now
-		_workingValue = 0.0f;
+        // Haven't worked out the value yet, so need to work it out now
+        workingValue = 0.0f;
 		workingOutValue = true;
 
 		foreach (NeatGene input in inputGenes)
@@ -110,16 +92,16 @@ public class NeatNode
                 continue;
 
             NeatNode inNode = network.nodes[input.fromNodeId];
-            _workingValue += inNode.CalculateValue() * input.weight;
+            workingValue += inNode.CalculateValue() * input.weight;
         }
 
 
         // Pass summation through activation function and cache until net inputs
-        _workingValue = (float)Math.Tanh(_workingValue);
+        workingValue = (float)Math.Tanh(workingValue);
 		workingValueFinal = true;
 		workingOutValue = false;
 		
-		return _workingValue;
+		return workingValue;
     }
 
 	/// <summary>

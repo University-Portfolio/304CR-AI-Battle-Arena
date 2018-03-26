@@ -35,6 +35,9 @@ public class NetworkGene : MonoBehaviour
 		if (netGene == null || !netGene.isEnabled)
 			return;
 
+        if (toNode == null || fromNode == null)
+            return;
+
 
 		// Draw connection between nodes
 		Vector3 diff = toNode.transform.position - fromNode.transform.position;
@@ -46,7 +49,7 @@ public class NetworkGene : MonoBehaviour
 		visual.rectTransform.sizeDelta = new Vector2(diff.magnitude * 0.75f, width);
 
 		// Change colour based on the current readings
-		float value = fromNode.netNode.WorkingValue * netGene.weight;
+		float value = fromNode.netNode.workingValue * netGene.weight;
 		if (value < 0)
 		{
 			Color colour = inactiveColour * -value;

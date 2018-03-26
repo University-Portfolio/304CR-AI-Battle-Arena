@@ -25,6 +25,26 @@ public class NeatController
     public float weightMutationChance = 0.80f;
 
 
+	/// <summary>
+	/// The species coefficient to use to for disjoin genes when determining species
+	/// </summary>
+	public float disjointCoefficient = 1.0f;
+	/// <summary>
+	/// The species coefficient to use to for excess genes when determining species
+	/// </summary>
+	public float excessCoefficient = 1.0f;
+	/// <summary>
+	/// The species coefficient to use to for average weight difference across a net when determining species
+	/// </summary>
+	public float weightDiffCoefficient = 0.4f;
+
+	/// <summary>
+	/// The value threshold used to group nets under species (Greater difference score than this means not the same species)
+	/// </summary>
+	public float speciesDeltaThreshold = 3.0f;
+	
+
+
 	public NeatController()
 	{
 		innovationIds = new Dictionary<Vector2Int, int>();

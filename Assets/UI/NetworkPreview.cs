@@ -104,8 +104,8 @@ public class NetworkPreview : MonoBehaviour
 				int y = (NeuralInput.ViewResolution - n / NeuralInput.ViewResolution) - 1;
 
 
-				// Put bias nodes under the display
-				if (logicNode.type == NeatNode.NodeType.BiasInput)
+				// Put extra nodes under the display
+                if(i >= NeuralInput.ResolutionInputCount)
 				{
 					RectTransform nodeRect = node.GetComponent<RectTransform>();
 					Vector3 size = display.rectTransform.sizeDelta * (4.0f / 3.0f);
@@ -119,7 +119,7 @@ public class NetworkPreview : MonoBehaviour
 				}
 
 				// Update visual and cache
-				node.SetVisualisation(logicNode);
+				node.SetVisualisation(logicNode, i < NeuralInput.ResolutionInputCount);
 				nodes[node.netNode.ID] = node;
 			}
 		}
@@ -129,7 +129,7 @@ public class NetworkPreview : MonoBehaviour
 			for (int i = 0; i < input.network.inputCount; ++i)
 			{
 				var logicNode = input.network.nodes[i];
-				nodes[logicNode.ID].SetVisualisation(logicNode);
+				nodes[logicNode.ID].SetVisualisation(logicNode, i < NeuralInput.ResolutionInputCount);
 			}
 		}
 
@@ -169,7 +169,7 @@ public class NetworkPreview : MonoBehaviour
 
 		// Spawn hidden nodes
 		List<KeyValuePair<int, NetworkNode>> delete = new List<KeyValuePair<int, NetworkNode>>();
-		foreach (var pair in nodes)
+        foreach (var pair in nodes)
 		{
 			if (pair.Key >= input.network.inputCount + input.network.outputCount)
 			{

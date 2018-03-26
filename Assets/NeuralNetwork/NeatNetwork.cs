@@ -28,11 +28,11 @@ public class NeatNetwork
     public float fitness;
 
 
-    public NeatNetwork(NeatController controller, int inputCount, int outputCount, int biasInputCount = 1)
+    public NeatNetwork(NeatController controller, int inputCount, int outputCount)
     {
         this.controller = controller;
 
-        this.inputCount = inputCount + biasInputCount;
+        this.inputCount = inputCount;
         this.outputCount = outputCount;
 
 		// Initialise network
@@ -44,9 +44,6 @@ public class NeatNetwork
 		// The first I nodes will be inputs and the following O nodes will be outputs
 		for (int i = 0; i < inputCount; ++i)
 			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Input, this));
-
-		for (int i = 0; i < biasInputCount; ++i)
-			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.BiasInput, this));
 
 		for (int i = 0; i < outputCount; ++i)
 			nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Output, this));
@@ -94,7 +91,7 @@ public class NeatNetwork
         // Set the input node values
         for (int i = 0; i < input.Length; ++i)
         {
-            nodes[i].WorkingValue = input[i];
+            nodes[i].workingValue = input[i];
             nodes[i].workingValueFinal = false;
         }
 
@@ -102,7 +99,7 @@ public class NeatNetwork
         // Clear all working values
         for (int i = inputCount; i < nodes.Count; ++i)
         {
-            nodes[i].WorkingValue = 0.0f;
+            nodes[i].workingValue = 0.0f;
             nodes[i].workingValueFinal = false;
         }
         
@@ -225,5 +222,88 @@ public class NeatNetwork
 			CreateGene(newNode.ID, gene.toNodeId).weight = gene.weight;
 			return;
 		}
+	}
+
+	/// <summary>
+	/// Can these 2 networks be consider the same species
+	/// </summary>
+	/// <returns></returns>
+	public static bool AreSameSpecies(NeatNetwork networkA, NeatNetwork networkB)
+	{
+		// Construct gene table (A genes in index 0 B genes in index 1)
+		Dictionary<int, NeatGene[]> geneTable = new Dictionary<int, NeatGene[]>();
+
+		foreach (NeatGene gene in networkA.genes)
+			geneTable.Add(gene.innovationId, new NeatGene[] { gene, null });
+
+		foreach (NeatGene gene in networkB.genes)
+		{
+			if (geneTable.ContainsKey(gene.innovationId))
+				geneTable[gene.innovationId][1] = gene;
+			else
+				geneTable.Add(gene.innovationId, new NeatGene[] { null, gene });
+		}
+
+
+		// Consider genes in order
+		List<int> geneIds = new List<int>(geneTable.Keys);
+		geneIds.Sort((x, y) => -x.CompareTo(y)); // Sort from last to first
+
+
+		int excessCount = 0;
+		int disjointCount = 0;
+		int matchCount = 0;
+		float matchTotalWeightDiff = 0.0f;
+
+		bool checkingForExcess = true;
+		bool checkingExcessFromA = false; // Otherwise read from B
+
+		// Calculate counts by considering each gene
+		for (int i = 0; i < geneIds.Count; ++i)
+		{
+			NeatGene[] genes = geneTable[geneIds[i]];
+
+			// Gene is excess if exists at hanging at end of gene list
+			if (checkingForExcess)
+			{
+				// Check which side we're to read excess from
+				if (i == 0)
+					checkingExcessFromA = (genes[0] != null);
+
+				if (checkingExcessFromA && genes[1] == null)
+					++excessCount;
+				else if (!checkingExcessFromA && genes[0] == null)
+					++excessCount;
+
+				// Finished reading the excess (either the network we're reading doesn't have this gene or the other network also has this gene)
+				else
+					checkingForExcess = false;
+			}
+
+			// (Can be changed above, so still check for disjoint of matching)
+			if (!checkingForExcess)
+			{
+				// Matching gene
+				if (genes[0] != null && genes[1] != null)
+				{
+					++matchCount;
+					matchTotalWeightDiff += Mathf.Abs(genes[0].weight - genes[1].weight);
+				}
+				// One net doesn't have this gene, so disjoint
+				else
+					++disjointCount;
+			}
+		}
+
+		NeatController controller = networkA.controller; // Should be the same for B
+		float geneCount = Mathf.Max(networkA.genes.Count, networkB.genes.Count);
+		
+		float networkDelta =
+			controller.excessCoefficient * excessCount / geneCount +
+			controller.disjointCoefficient * disjointCount / geneCount +
+			controller.weightDiffCoefficient * (matchTotalWeightDiff / (float)matchCount);
+
+		// Each network can be considered under the same species, if their difference is in acceptable range
+		return networkDelta <= controller.speciesDeltaThreshold;
 	}
 }

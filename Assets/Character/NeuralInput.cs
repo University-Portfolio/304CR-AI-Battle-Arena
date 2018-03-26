@@ -27,6 +27,8 @@ public struct NeuralPixel
 public class NeuralInput : MonoBehaviour
 {
     public static int ViewResolution { get { return 16; } }
+    public static int ResolutionInputCount { get { return ViewResolution * ViewResolution * 2; } }
+
 
     public Character character { get; private set; }
 	private Transform cachedTrans;
@@ -48,7 +50,7 @@ public class NeuralInput : MonoBehaviour
 		cachedTrans = transform;
 
 		display = new NeuralPixel[ViewResolution, ViewResolution];
-		networkInput = new float[ViewResolution * ViewResolution * 2];
+		networkInput = new float[ResolutionInputCount + 3];
 
 		// DEBUG: TODO REMOVE
 		NeatController controller = new NeatController();
@@ -65,7 +67,10 @@ public class NeuralInput : MonoBehaviour
 
 
 		RenderVision();
-		networkOutput = network.GenerateOutput(networkInput);
+        networkInput[ResolutionInputCount + 0] = 1.0f; // Bias input
+        networkInput[ResolutionInputCount + 1] = 1.0f; // Bias input TODO 
+        networkInput[ResolutionInputCount + 2] = 1.0f; // Bias input TODO
+        networkOutput = network.GenerateOutput(networkInput);
 
 
 		// Output 0: Move
