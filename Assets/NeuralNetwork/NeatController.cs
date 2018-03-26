@@ -5,6 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// Main controller for a particular NEAT neural net
+/// Holds key values for the growth of this NN
 /// </summary>
 public class NeatController
 {
@@ -42,7 +43,12 @@ public class NeatController
 	/// The value threshold used to group nets under species (Greater difference score than this means not the same species)
 	/// </summary>
 	public float speciesDeltaThreshold = 3.0f;
-	
+
+
+	/// <summary>
+	/// The currently active population
+	/// </summary>
+	public NeatNetwork[] population { get; private set; }
 
 
 	public NeatController()
@@ -77,5 +83,18 @@ public class NeatController
 	public bool DoesGeneExist(int fromNodeId, int toNodeId)
 	{
 		return innovationIds.ContainsKey(new Vector2Int(fromNodeId, toNodeId));
+	}
+
+	/// <summary>
+	/// Generate a starting population
+	/// </summary>
+	public NeatNetwork[] GenerateBasePopulation(int count, int inputCount, int outputCount)
+	{
+		population = new NeatNetwork[count];
+
+		for (int i = 0; i < count; ++i)
+			population[i] = new NeatNetwork(this, inputCount, outputCount);
+
+		return population;
 	}
 }

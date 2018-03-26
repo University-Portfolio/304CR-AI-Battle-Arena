@@ -13,14 +13,16 @@ public class NetworkPreview : MonoBehaviour
 	
 
 
-	public NeuralInput DebugTarget;
+	public NeuralInputAgent DebugTarget;
 	
 
 	/// <summary>
 	/// The target which is currently being visualised
 	/// </summary>
-	private NeuralInput currentTarget;
+	private NeuralInputAgent currentTarget;
 
+	[SerializeField]
+	private Text fitnessText;
 
 	[SerializeField]
 	private NetworkNode defaultNode;
@@ -52,7 +54,7 @@ public class NetworkPreview : MonoBehaviour
 	void Start ()
     {
 		// Create texture for visualisation
-		displayTexture = new Texture2D(NeuralInput.ViewResolution, NeuralInput.ViewResolution);
+		displayTexture = new Texture2D(NeuralInputAgent.ViewResolution, NeuralInputAgent.ViewResolution);
 		displayTexture.filterMode = FilterMode.Point;
 		displayTexture.wrapMode = TextureWrapMode.Clamp;
 		display.texture = displayTexture;
@@ -64,24 +66,26 @@ public class NetworkPreview : MonoBehaviour
 	void Update ()
 	{
 		if (currentTarget != null)
+		{
 			RenderVision();
+
+			fitnessText.text = "" + currentTarget.network.fitness;
+		}
+		else
+		{
+			fitnessText.text = "N/A";
+		}
 
 		// DEBUG
 		if (DebugTarget != currentTarget)
 			SetVisualisation(DebugTarget);
-
-		if (currentTarget != null && currentTarget.DEBUG_REBUILD)
-		{
-			SetVisualisation(currentTarget);
-			currentTarget.DEBUG_REBUILD = false;
-		}
 	}
 
 	/// <summary>
 	/// Update this visualisation
 	/// </summary>
 	/// <param name="node">The node for which this is a visualisation of</param>
-	public void SetVisualisation(NeuralInput input)
+	public void SetVisualisation(NeuralInputAgent input)
 	{
 		currentTarget = input;
 		bool initialised = nodes.Count != 0;
@@ -91,7 +95,7 @@ public class NetworkPreview : MonoBehaviour
 		// Spawn input nodes
 		if (!initialised)
 		{
-			Vector2 step = display.rectTransform.sizeDelta * (4.0f/3.0f) / NeuralInput.ViewResolution;
+			Vector2 step = display.rectTransform.sizeDelta * (4.0f/3.0f) / NeuralInputAgent.ViewResolution;
 
 			for (int i = 0; i < input.network.inputCount; ++i)
 			{
@@ -99,17 +103,17 @@ public class NetworkPreview : MonoBehaviour
 				NeatNode logicNode = input.network.nodes[i];
 
 				// Multiple inputs at the same pixel
-				int n = i % (NeuralInput.ViewResolution * NeuralInput.ViewResolution);
-				int x = n % NeuralInput.ViewResolution;
-				int y = (NeuralInput.ViewResolution - n / NeuralInput.ViewResolution) - 1;
+				int n = i % (NeuralInputAgent.ViewResolution * NeuralInputAgent.ViewResolution);
+				int x = n % NeuralInputAgent.ViewResolution;
+				int y = (NeuralInputAgent.ViewResolution - n / NeuralInputAgent.ViewResolution) - 1;
 
 
-				// Put extra nodes under the display
-                if(i >= NeuralInput.ResolutionInputCount)
+				// Put extra nodes next to the display
+                if(i >= NeuralInputAgent.ResolutionInputCount)
 				{
 					RectTransform nodeRect = node.GetComponent<RectTransform>();
 					Vector3 size = display.rectTransform.sizeDelta * (4.0f / 3.0f);
-					nodeRect.position = display.rectTransform.position + new Vector3(size.x - step.x, -size.y - n * step.y) + new Vector3(nodeRect.sizeDelta.x * 0.5f, -nodeRect.sizeDelta.y * 0.5f);
+					nodeRect.position = display.rectTransform.position + new Vector3(size.x + step.x, (-n - 0.25f) * step.y) + new Vector3(nodeRect.sizeDelta.x * 0.5f, -nodeRect.sizeDelta.y * 0.5f);
 				}
 				// Move to be inline with the pixels
 				else
@@ -119,7 +123,7 @@ public class NetworkPreview : MonoBehaviour
 				}
 
 				// Update visual and cache
-				node.SetVisualisation(logicNode, i < NeuralInput.ResolutionInputCount);
+				node.SetVisualisation(logicNode, i < NeuralInputAgent.ResolutionInputCount);
 				nodes[node.netNode.ID] = node;
 			}
 		}
@@ -129,7 +133,7 @@ public class NetworkPreview : MonoBehaviour
 			for (int i = 0; i < input.network.inputCount; ++i)
 			{
 				var logicNode = input.network.nodes[i];
-				nodes[logicNode.ID].SetVisualisation(logicNode, i < NeuralInput.ResolutionInputCount);
+				nodes[logicNode.ID].SetVisualisation(logicNode, i < NeuralInputAgent.ResolutionInputCount);
 			}
 		}
 
@@ -247,33 +251,29 @@ public class NetworkPreview : MonoBehaviour
 	/// </summary>
 	void RenderVision()
 	{
-		/*
-		 * Uncomment to view an individual channel
-		for (int i = 0; i < currentTarget.networkInput.Length; ++i)
+		if (currentTarget.character.IsDead)
 		{
-			int x = i % NeuralInput.ViewResolution;
-			int y = i / NeuralInput.ViewResolution;
-			Color colour = Color.white * (currentTarget.networkInput[i] + 1.0f) * 0.5f;
-			colour.a = 1.0f;
-			displayTexture.SetPixel(x, y, colour);
-		}
-		displayTexture.Apply(false, false);
-		return;
-		*/
-
-		// Draw NN view to texture   
-		for (int x = 0; x < NeuralInput.ViewResolution; ++x)
-			for (int y = 0; y < NeuralInput.ViewResolution; ++y)
-			{
-				if (currentTarget.display[x, y].containsArrow)
-					displayTexture.SetPixel(x, y, Color.red);
-				else if (currentTarget.display[x, y].containsCharacter)
-					displayTexture.SetPixel(x, y, Color.black);
-				else if (currentTarget.display[x, y].containsStage)
-					displayTexture.SetPixel(x, y, Color.white);
-				else
+			// Draw blank view 
+			for (int x = 0; x < NeuralInputAgent.ViewResolution; ++x)
+				for (int y = 0; y < NeuralInputAgent.ViewResolution; ++y)
 					displayTexture.SetPixel(x, y, new Color(0, 0, 0, 0.2f));
-			}
+		}
+		else
+		{
+			// Draw NN view to texture   
+			for (int x = 0; x < NeuralInputAgent.ViewResolution; ++x)
+				for (int y = 0; y < NeuralInputAgent.ViewResolution; ++y)
+				{
+					if (currentTarget.display[x, y].containsArrow)
+						displayTexture.SetPixel(x, y, Color.red);
+					else if (currentTarget.display[x, y].containsCharacter)
+						displayTexture.SetPixel(x, y, Color.black);
+					else if (currentTarget.display[x, y].containsStage)
+						displayTexture.SetPixel(x, y, Color.white);
+					else
+						displayTexture.SetPixel(x, y, new Color(0, 0, 0, 0.2f));
+				}
+		}
 
 		displayTexture.Apply(false, false);
 	}

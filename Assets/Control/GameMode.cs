@@ -14,6 +14,7 @@ public class GameMode : MonoBehaviour
 	private Character defaultCharacter;
 	[SerializeField]
 	private int characterCount = 30;
+	public int CharacterCount { get { return characterCount; } }
 
 	public StageController stage { get; private set; }
 	public Character[] characters { get; private set; }
@@ -38,7 +39,6 @@ public class GameMode : MonoBehaviour
 
 
 		characters = new Character[characterCount];
-		SpawnCharacters(false);
 	}
 	
 	void Update ()
@@ -72,7 +72,7 @@ public class GameMode : MonoBehaviour
 				characters[i].gameObject.AddComponent<PlayerInput>();
 			else
 			{
-				characters[i].gameObject.AddComponent<NeuralInput>();
+				characters[i].gameObject.AddComponent<NeuralInputAgent>();
 			}
 		}
 	}

@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// Represents a single specific NEAT nerual network/genome
 /// </summary>
-public class NeatNetwork
+public class NeatNetwork : System.IComparable<NeatNetwork>
 {
     /// <summary>
     /// The controller which spawned this network
@@ -136,7 +136,7 @@ public class NeatNetwork
 	/// <summary>
 	/// Randomly selects genes and alter their weights
 	/// </summary>
-	public void MutateWeights()
+	private void MutateWeights()
 	{
 		foreach (NeatGene gene in genes)
 		{
@@ -173,7 +173,7 @@ public class NeatNetwork
 	/// <summary>
 	/// Attempt to randomly connect a pair of unconnected nodes
 	/// </summary>
-	public void AddMutatedConnection()
+	private void AddMutatedConnection()
 	{
 		// 30 attempts to create a gene
 		for (int i = 0; i<30; ++i)
@@ -197,7 +197,7 @@ public class NeatNetwork
 	/// <summary>
 	/// Randomly place a node in the middle of an existing gene
 	/// </summary>
-	public void AddMutatedNode()
+	private void AddMutatedNode()
 	{
 		if (genes.Count == 0)
 			return;
@@ -305,5 +305,15 @@ public class NeatNetwork
 
 		// Each network can be considered under the same species, if their difference is in acceptable range
 		return networkDelta <= controller.speciesDeltaThreshold;
+	}
+
+	public int CompareTo(NeatNetwork other)
+	{
+		if (fitness == other.fitness)
+			return 0;
+		else if (fitness < other.fitness)
+			return -1;
+		else
+			return 1;
 	}
 }

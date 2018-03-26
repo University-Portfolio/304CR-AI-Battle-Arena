@@ -61,6 +61,7 @@ public class Character : MonoBehaviour
 	/// </summary>
 	private float arrowTimer = 0;
 	public bool IsShooting { get { return shootTimer != 0; } }
+	public float NormalizedShootTime { get { return shootTimer / shootDuration; } }
 	
 
 	public bool isAlive { get; private set; }

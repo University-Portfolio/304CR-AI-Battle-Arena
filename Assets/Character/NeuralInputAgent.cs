@@ -14,8 +14,8 @@ public struct NeuralPixel
 
 	///
 	/// This data should be passed into the network as 2 floats
-	/// stage and character will share a float [-1: stage 1: character]
-	/// Arrow has a float all to it's self
+	/// stage and arrow will share a float [-1: stage 1: arrow]
+	/// character has a float all to it's self
 	///
 }
 
@@ -24,13 +24,26 @@ public struct NeuralPixel
 /// Character input profile which uses a NEAT net to controller it
 /// </summary>
 [RequireComponent(typeof(Character))]
-public class NeuralInput : MonoBehaviour
+public class NeuralInputAgent : MonoBehaviour
 {
     public static int ViewResolution { get { return 16; } }
+
+	/// <summary>
+	/// The number of inputs dedicated to the rendered view
+	/// </summary>
     public static int ResolutionInputCount { get { return ViewResolution * ViewResolution * 2; } }
 
+	/// <summary>
+	/// The total number of inputs this agent requires
+	/// </summary>
+	public static int InputCount { get { return ResolutionInputCount + 3; } }
+	/// <summary>
+	/// The total number of outputs this agent requires
+	/// </summary>
+	public static int OutputCount { get { return 3; } }
 
-    public Character character { get; private set; }
+
+	public Character character { get; private set; }
 	private Transform cachedTrans;
     
     public NeuralPixel[,] display { get; private set; }
@@ -50,25 +63,18 @@ public class NeuralInput : MonoBehaviour
 		cachedTrans = transform;
 
 		display = new NeuralPixel[ViewResolution, ViewResolution];
-		networkInput = new float[ResolutionInputCount + 3];
-
-		// DEBUG: TODO REMOVE
-		NeatController controller = new NeatController();
-		network = new NeatNetwork(controller, networkInput.Length, 3);
-		
-		//network.CreateMutations();
+		networkInput = new float[InputCount];
 	}
 	
     void Update ()
     {
-		// No point updating if dead
-		if (character.IsDead)
+		if (network == null || character.IsDead)
 			return;
 
 
 		RenderVision();
-        networkInput[ResolutionInputCount + 0] = 1.0f; // Bias input
-        networkInput[ResolutionInputCount + 1] = 1.0f; // Bias input TODO 
+        networkInput[ResolutionInputCount + 0] = character.NormalizedShootTime;
+        networkInput[ResolutionInputCount + 1] = 1.0f; // Bias input  
         networkInput[ResolutionInputCount + 2] = 1.0f; // Bias input TODO
         networkOutput = network.GenerateOutput(networkInput);
 
@@ -82,29 +88,12 @@ public class NeuralInput : MonoBehaviour
 		// Output 2: Shoot 
 		if(networkOutput[2] >= 0.5f)
 			character.Fire();
-
-		// DEBUG
-		if (Input.GetKeyDown(KeyCode.N))
-		{
-			network.AddMutatedNode();
-			DEBUG_REBUILD = true;
-		}
-		if (Input.GetKeyDown(KeyCode.C))
-		{
-			network.AddMutatedConnection();
-			DEBUG_REBUILD = true;
-		}
-		if (Input.GetKeyDown(KeyCode.W))
-		{
-			network.MutateWeights();
-		}
-		if (Input.GetKeyDown(KeyCode.A))
-		{
-			network.CreateMutations();
-			DEBUG_REBUILD = true;
-		}
 	}
-	public bool DEBUG_REBUILD = false;
+
+	public void AssignNetwork(NeatNetwork network)
+	{
+		this.network = network;
+	}
 
 
 #if UNITY_EDITOR
@@ -180,12 +169,12 @@ public class NeuralInput : MonoBehaviour
 		for (int x = 0; x < ViewResolution; ++x)
 			for (int y = 0; y < ViewResolution; ++y)
 			{
-				int stageCharIndex = x + y * ViewResolution;
-				int arrowIndex = ViewResolution * ViewResolution + x + y * ViewResolution;
+				int stageArrowIndex = x + y * ViewResolution;
+				int characterIndex = ViewResolution * ViewResolution + x + y * ViewResolution;
 				NeuralPixel pixel = display[x, y];
 
-				networkInput[stageCharIndex] = pixel.containsCharacter ? 1.0f : pixel.containsStage ? -1.0f : 0.0f;
-				networkInput[arrowIndex] = pixel.containsArrow ? 1.0f : -1.0f;
+				networkInput[stageArrowIndex] = pixel.containsArrow ? 1.0f : pixel.containsStage ? -1.0f : 0.0f;
+				networkInput[characterIndex] = pixel.containsCharacter ? 1.0f : 0.0f;
 			}
 	}
 
