@@ -67,9 +67,10 @@ public class Character : MonoBehaviour
 	public bool isAlive { get; private set; }
 	public bool IsDead { get { return !isAlive; } }
 
+	public int killCount { get; private set; }
 
 
-    void Start ()
+	void Start ()
     {
         characterController = GetComponent<CharacterController>();
 		isAlive = true;
@@ -182,6 +183,7 @@ public class Character : MonoBehaviour
 	/// <param name="target">The character that has been shot</param>
 	public void OnGoodShot(Character target)
 	{
+		killCount++;
 	}
 	
 	/// <summary>

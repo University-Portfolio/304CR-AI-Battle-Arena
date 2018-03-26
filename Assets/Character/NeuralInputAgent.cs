@@ -56,6 +56,15 @@ public class NeuralInputAgent : MonoBehaviour
 	private float[] networkInput;
 	private float[] networkOutput;
 
+	/// <summary>
+	/// How long this agent has survived
+	/// </summary>
+	public float survialTime { get; private set; }
+	/// <summary>
+	/// How many kills this agent has gotten
+	/// </summary>
+	public int killCount { get; private set; }
+
 
 	void Start ()
     {
@@ -68,9 +77,17 @@ public class NeuralInputAgent : MonoBehaviour
 	
     void Update ()
     {
-		if (network == null || character.IsDead)
+		if (network == null)
 			return;
 
+		// Set network fitness from survival and kill count
+		network.fitness = survialTime * NeuralController.main.survialWeight + killCount * NeuralController.main.killWeight;
+
+		if (character.IsDead)
+			return;
+
+		survialTime += Time.deltaTime;
+		killCount = character.killCount;
 
 		RenderVision();
         networkInput[ResolutionInputCount + 0] = character.NormalizedShootTime;

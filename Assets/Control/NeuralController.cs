@@ -15,6 +15,15 @@ public class NeuralController : MonoBehaviour
 	/// </summary>
 	public NeatController neatController { get; private set; }
 
+	/// <summary>
+	/// Weight for survival time on network fitness
+	/// </summary>
+	public float survialWeight = 1.0f;
+	/// <summary>
+	/// Weight for agent kills on network fitness
+	/// </summary>
+	public float killWeight = 15.0f;
+
 
 	void Start ()
 	{

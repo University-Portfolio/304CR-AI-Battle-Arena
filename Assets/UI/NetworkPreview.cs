@@ -10,11 +10,7 @@ public class NetworkPreview : MonoBehaviour
     private RawImage display;
 
 	private Texture2D displayTexture;
-	
-
-
-	public NeuralInputAgent DebugTarget;
-	
+		
 
 	/// <summary>
 	/// The target which is currently being visualised
@@ -41,6 +37,7 @@ public class NetworkPreview : MonoBehaviour
 	[SerializeField]
 	private RectTransform hiddenSection;
 
+
 	/// <summary>
 	/// Area to place genes
 	/// </summary>
@@ -49,6 +46,7 @@ public class NetworkPreview : MonoBehaviour
 
 	private Dictionary<int, NetworkNode> nodes;
 	private Dictionary<int, NetworkGene> genes;
+
 
 
 	void Start ()
@@ -75,10 +73,6 @@ public class NetworkPreview : MonoBehaviour
 		{
 			fitnessText.text = "N/A";
 		}
-
-		// DEBUG
-		if (DebugTarget != currentTarget)
-			SetVisualisation(DebugTarget);
 	}
 
 	/// <summary>
@@ -87,9 +81,35 @@ public class NetworkPreview : MonoBehaviour
 	/// <param name="node">The node for which this is a visualisation of</param>
 	public void SetVisualisation(NeuralInputAgent input)
 	{
+		// Cleanup old visual stuff
+		if (currentTarget != null)
+		{
+			// Destroy genes
+			foreach (var pair in genes)
+				Destroy(pair.Value.gameObject);
+			genes.Clear();
+
+			// Destroy hidden nodes
+			List<KeyValuePair<int, NetworkNode>> delete = new List<KeyValuePair<int, NetworkNode>>();
+			foreach (var pair in nodes)
+			{
+				if (pair.Key >= currentTarget.network.inputCount + currentTarget.network.outputCount)
+				{
+					Destroy(pair.Value.gameObject);
+					delete.Add(pair);
+				}
+			}
+			foreach (var pair in delete)
+				nodes.Remove(pair.Key);
+		}
+
+
+		// Update new visuals
 		currentTarget = input;
 		bool initialised = nodes.Count != 0;
 
+		if (input == null)
+			return;
 
 
 		// Spawn input nodes
@@ -172,19 +192,6 @@ public class NetworkPreview : MonoBehaviour
 
 
 		// Spawn hidden nodes
-		List<KeyValuePair<int, NetworkNode>> delete = new List<KeyValuePair<int, NetworkNode>>();
-        foreach (var pair in nodes)
-		{
-			if (pair.Key >= input.network.inputCount + input.network.outputCount)
-			{
-				Destroy(pair.Value.gameObject);
-				delete.Add(pair);
-			}
-		}
-		foreach(var pair in delete)
-			nodes.Remove(pair.Key);
-
-
 		// Construct layers, to display
 		Dictionary<int, List<NeatNode>> layers = new Dictionary<int, List<NeatNode>>();
 		for (int i = input.network.inputCount + input.network.outputCount; i < input.network.nodes.Count; ++i)
@@ -224,10 +231,6 @@ public class NetworkPreview : MonoBehaviour
 
 
 		// Add genes
-		foreach (var pair in genes)
-			Destroy(pair.Value.gameObject);
-		genes.Clear();
-
 		foreach (NeatGene logicGene in input.network.genes)
 		{
 			if (!logicGene.isEnabled)
