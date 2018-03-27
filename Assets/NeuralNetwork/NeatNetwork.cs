@@ -307,6 +307,85 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 		return networkDelta <= controller.speciesDeltaThreshold;
 	}
 
+    /// <summary>
+    /// Perform matching on 2 networks to breed them
+    /// </summary>
+    /// <returns>The new child network</returns>
+    public NeatNetwork Breed(NeatNetwork networkA, NeatNetwork networkB)
+    {
+        // Construct gene table (A genes in index 0 B genes in index 1)
+        Dictionary<int, NeatGene[]> geneTable = new Dictionary<int, NeatGene[]>();
+
+        foreach (NeatGene gene in networkA.genes)
+            geneTable.Add(gene.innovationId, new NeatGene[] { gene, null });
+
+        foreach (NeatGene gene in networkB.genes)
+        {
+            if (geneTable.ContainsKey(gene.innovationId))
+                geneTable[gene.innovationId][1] = gene;
+            else
+                geneTable.Add(gene.innovationId, new NeatGene[] { null, gene });
+        }
+
+        // Add new genes 
+        List<NeatGene> childGenes = new List<NeatGene>();
+
+        foreach (var pair in geneTable)
+        {
+            NeatGene[] genes = pair.Value;
+
+            // Inherit equally
+            if (networkA.fitness == networkB.fitness)
+            {
+                // Only A posseses the gene
+                if (genes[0] != null && genes[1] == null)
+                    childGenes.Add(genes[0]);
+                // Only B posseses the gene
+                else if (genes[0] == null && genes[1] != null)
+                    childGenes.Add(genes[1]);
+
+                // Both posses the gene, so take random
+                else
+                    childGenes.Add(genes[Random.Range(0, 2)]);
+            }
+            // One nework is better than the other
+            else
+            {
+                // Both posses the gene, so take random
+                if (genes[0] != null && genes[1] != null)
+                    childGenes.Add(genes[Random.Range(0, 2)]);
+
+                // Take gene from A
+                else if (networkA.fitness > networkB.fitness && genes[0] != null)
+                    childGenes.Add(genes[0]);
+
+                // Take gene from B
+                else if (networkB.fitness > networkA.fitness && genes[1] != null)
+                    childGenes.Add(genes[1]);
+            }
+        }
+
+
+        // Construct child network
+        NeatNetwork childNetwork = new NeatNetwork(networkA.controller, networkA.inputCount, networkB.outputCount);
+
+        foreach (NeatGene gene in childGenes)
+        {
+            int maxId = System.Math.Max(gene.fromNodeId, gene.toNodeId);
+
+            // Ensure required genes exist (Must initilise in index order)
+            while (childNetwork.nodes.Count <= maxId)
+                childNetwork.nodes.Add(new NeatNode(childNetwork.nodes.Count, NeatNode.NodeType.Hidden, childNetwork));
+
+            // Add gene
+            NeatGene newGene = childNetwork.CreateGene(gene.fromNodeId, gene.toNodeId);
+            newGene.isEnabled = gene.isEnabled;
+            newGene.weight = gene.weight;
+        }
+
+        return childNetwork;
+    }
+
 	public int CompareTo(NeatNetwork other)
 	{
 		if (fitness == other.fitness)
