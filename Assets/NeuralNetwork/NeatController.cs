@@ -15,10 +15,16 @@ public class NeatController
     private int innovationCounter = 0;
     private Dictionary<Vector2Int, int> innovationIds;
 
-    /// <summary>
-    /// The chance of structural mutations for a genome
-    /// </summary>
-    public float structuralMutationChance = 0.25f;
+	/// <summary>
+	/// What generation are we currently on
+	/// </summary>
+	public int generationCounter { get; private set; }
+
+
+	/// <summary>
+	/// The chance of structural mutations for a genome
+	/// </summary>
+	public float structuralMutationChance = 0.25f;
 
     /// <summary>
     /// The chance of any change in weight occuring for a genome
@@ -41,18 +47,13 @@ public class NeatController
 	/// <summary>
 	/// The species coefficient to use to for average weight difference across a net when determining species
 	/// </summary>
-	public float weightDiffCoefficient = 0.4f;
+	public float weightDiffCoefficient = 1.0f;
 
 	/// <summary>
 	/// The value threshold used to group nets under species (Greater difference score than this means not the same species)
 	/// </summary>
-	public float speciesDeltaThreshold = 3.0f;
+	public float speciesDeltaThreshold = 2.5f;
 
-
-    /// <summary>
-    /// What generation are we currently on
-    /// </summary>
-    public int generationCounter { get; private set; }
 
 	/// <summary>
 	/// The currently active population
@@ -101,7 +102,7 @@ public class NeatController
 	/// <summary>
 	/// Generate a starting population
 	/// </summary>
-	public NeatNetwork[] GenerateBasePopulation(int count, int inputCount, int outputCount)
+	public NeatNetwork[] GenerateBasePopulation(int count, int inputCount, int outputCount, int initialMutations = 1)
 	{
         generationCounter = 1;
         population = new NeatNetwork[count];
@@ -111,7 +112,8 @@ public class NeatController
 		for (int i = 0; i < count; ++i)
 		{
 			population[i] = new NeatNetwork(this, inputCount, outputCount);
-			population[i].CreateMutations(); // Start with initial mutation to avoid boring stuff
+			for(int m = 0; m< initialMutations; ++m)
+				population[i].CreateMutations();
 		}
 
 		AssignPopulationToSpecies();
@@ -171,6 +173,6 @@ public class NeatController
                 NeatSpecies newSpecies = new NeatSpecies(network);
 				activeSpecies.Add(newSpecies);
             }
-        }
-    }
+		}
+	}
 }

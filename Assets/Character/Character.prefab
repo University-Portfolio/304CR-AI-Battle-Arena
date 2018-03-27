@@ -1513,6 +1513,7 @@ MonoBehaviour:
   moveSpeed: 60
   turnSpeed: 5
   shootDuration: 0.5
+  roundWinCount: 0
 --- !u!114 &114766526707172106
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1539,7 +1540,7 @@ SkinnedMeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: e3e06b54068a4e14e839371307d7ce77, type: 3}
+  - {fileID: 2100000, guid: 3d8797a2edd902343996ad76d99bf3d1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

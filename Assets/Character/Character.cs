@@ -208,4 +208,14 @@ public class Character : MonoBehaviour
 		shootTimer = 0.0f;
 		arrowTimer = 0.0f;
 	}
+
+	/// <summary>
+	/// Set the colour for this character
+	/// </summary>
+	/// <param name="colour"></param>
+	public void SetColour(Color colour)
+	{
+		foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+			renderer.material.color = colour;// .SetColor("_Albedo", colour);
+	}
 }

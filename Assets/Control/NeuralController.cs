@@ -42,18 +42,13 @@ public class NeuralController : MonoBehaviour
 		}
 		
 		neatController = new NeatController();
-		NeatNetwork[] population = neatController.GenerateBasePopulation(GameMode.Main.CharacterCount, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount);
+		NeatNetwork[] population = neatController.GenerateBasePopulation(GameMode.Main.CharacterCount, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
 
 
 		GameMode.Main.ResetGame();
 		for (int i = 0; i < GameMode.Main.CharacterCount; ++i)
 		{
 			NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
-			population[i].CreateMutations();
-
-			for(int n = 0; n < 40; ++n)
-				population[i].CreateMutations();
-
 			agent.AssignNetwork(population[i]);
 		}
 	}

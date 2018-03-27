@@ -225,10 +225,12 @@ public class NetworkPreview : MonoBehaviour
 		// Draw nodes as layers
 		Vector3 hiddenStart = hiddenSection.position + new Vector3(-hiddenSection.rect.width * 0.5f, 0);
 		Vector3 hiddenEnd = hiddenSection.position + new Vector3(hiddenSection.rect.width * 0.5f, 0);
+		float diff = Mathf.Max(maxDistance - minDistance, 1.0f);
 
 		foreach (var layer in layers)
 		{
-			float layerDist = 1.0f - ((layer.Key - minDistance) / (float)(maxDistance - minDistance));
+
+			float layerDist = 1.0f - ((layer.Key - minDistance) / (float)(diff));
 			int nodeCount = layer.Value.Count;
 
 			for (int i = 0; i < nodeCount; ++i)

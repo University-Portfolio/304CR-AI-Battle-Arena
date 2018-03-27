@@ -112,7 +112,14 @@ public class NeuralInputAgent : MonoBehaviour
 
 	public void AssignNetwork(NeatNetwork network)
 	{
+		if (character == null)
+			character = GetComponent<Character>();
+
 		this.network = network;
+		if (network != null)
+			character.SetColour(network.assignedSpecies.colour);
+		else
+			character.SetColour(Color.black);
 	}
 
 

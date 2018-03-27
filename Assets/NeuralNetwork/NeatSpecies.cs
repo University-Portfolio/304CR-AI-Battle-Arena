@@ -14,10 +14,17 @@ public class NeatSpecies
 	/// </summary>
 	public readonly List<NeatNetwork> population;
 
+	/// <summary>
+	/// The colour to represent this species with
+	/// </summary>
+	public readonly Color colour;
+
 
 	public NeatSpecies(NeatNetwork representative)
 	{
 		this.representative = representative;
+		colour = Color.HSVToRGB(Random.value, Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f));
+
 		population = new List<NeatNetwork>();
 		population.Add(representative);
 		representative.assignedSpecies = this;
