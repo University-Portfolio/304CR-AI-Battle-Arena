@@ -54,6 +54,15 @@ public class NeatController
 	/// </summary>
 	public float speciesDeltaThreshold = 2.5f;
 
+	/// <summary>
+	/// How much of (Top scores of) a species should be consider when breeding
+	/// </summary>
+	public float breedConsideration = 0.3f;
+	/// <summary>
+	/// How much of (Top scores of) a species should be brought into the next generation
+	/// </summary>
+	public float breedRetention = 0.1f;
+
 
 	/// <summary>
 	/// The currently active population
@@ -126,24 +135,65 @@ public class NeatController
     /// </summary>
     public NeatNetwork[] BreedNextGeneration()
     {
-		// TODO - ACTUAL BREEDING
-		foreach (NeatNetwork network in population)
-			network.CreateMutations();
+		// Calulate the average adjusted fitness
+		float totalFitness = 0.0f;
+		Dictionary<NeatSpecies, float> fitness = new Dictionary<NeatSpecies, float>();
 
-		
-		// Clear species
-		foreach(NeatSpecies species in activeSpecies)
-			species.NextGeneration();
+		foreach (NeatSpecies species in activeSpecies)
+		{
+			float adjustedFitness = species.CalulateAverageAdjustedFitness();
+			totalFitness += adjustedFitness;
+			fitness[species] = adjustedFitness;
+		}
 
-		AssignPopulationToSpecies();
 
-		// Remove species with no currently active members 
-		for (int i = 0; i < activeSpecies.Count; ++i)
-			if (activeSpecies[i].population.Count == 0)
+		// Determine how many networks each species has been allocated
+		Dictionary<NeatSpecies, int> allocation = new Dictionary<NeatSpecies, int>();
+		int totalNewCount = 0;
+
+		foreach (NeatSpecies species in activeSpecies)
+		{
+			if (totalFitness <= 0.0f)
+				allocation[species] = 0;
+			else
 			{
-				activeSpecies.RemoveAt(i);
-				--i;
+				int alloc = (int)((fitness[species] / totalFitness) * population.Length);
+				allocation[species] = alloc;
+				totalNewCount += alloc;
 			}
+		}
+
+
+		// Handle if new count is too high or low
+		if (totalNewCount < population.Length)
+		{
+			// Randomly allocate the remainder
+			for (int i = 0; i < population.Length - totalNewCount; ++i)
+			{
+				NeatSpecies species = activeSpecies[Random.Range(0, activeSpecies.Count)];
+				allocation[species]++;
+			}
+		}
+		else if (totalNewCount > population.Length)
+		{
+			// Randomly deallocate the remainder
+			for (int i = 0; i < totalNewCount - population.Length; ++i)
+			{
+				NeatSpecies species = activeSpecies[Random.Range(0, activeSpecies.Count)];
+				allocation[species]--;
+			}
+		}
+
+
+		// Generate new popluation
+		List<NeatNetwork> newPopulation = new List<NeatNetwork>();
+
+		foreach (NeatSpecies species in activeSpecies)
+			species.NextGeneration(allocation[species], newPopulation);
+		
+
+		// Assign correct species to the new networks
+		AssignPopulationToSpecies();
 
 
 		generationCounter++;
@@ -174,5 +224,15 @@ public class NeatController
 				activeSpecies.Add(newSpecies);
             }
 		}
+
+
+		// Remove species with no currently active members 
+		for (int i = 0; i < activeSpecies.Count; ++i)
+			if (activeSpecies[i].population.Count == 0)
+			{
+				Debug.Log("Species (" + activeSpecies[i].colour.ToString() + ") has died after " + activeSpecies[i].generationsLived + " generations");
+				activeSpecies.RemoveAt(i);
+				--i;
+			}
 	}
 }

@@ -27,13 +27,17 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
     public readonly int outputCount;
 
 
-    /// <summary>
-    /// The fitness of this network
-    /// </summary>
-    public float fitness;
+	/// <summary>
+	/// The fitness of this network
+	/// </summary>
+	public float fitness;
+	/// <summary>
+	/// The fitness of this network in a past generation
+	/// </summary>
+	public float previousFitness { get; private set; }
 
 
-    public NeatNetwork(NeatController controller, int inputCount, int outputCount)
+	public NeatNetwork(NeatController controller, int inputCount, int outputCount)
     {
         this.controller = controller;
 
@@ -63,13 +67,34 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 		//		CreateGene(i, inputCount + j);
 	}
 
-    /// <summary>
-    /// Create a gene between 2 nodes
-    /// </summary>
-    /// <param name="inNodeId">The index of the node for the gene to leave from</param>
-    /// <param name="outNode">The index of the node for the gene to enter</param>
-    /// <returns>The newly created gene object</returns>
-    private NeatGene CreateGene(int fromNodeId, int toNodeId)
+	/// <summary>
+	/// Create a copy of an existing network structure (Only structual values are copies)
+	/// </summary>
+	/// <param name="controller"></param>
+	/// <param name="inputCount"></param>
+	/// <param name="outputCount"></param>
+	public NeatNetwork(NeatNetwork other)
+	{
+		this.controller = other.controller;
+		previousFitness = other.fitness;
+
+		this.inputCount = other.inputCount;
+		this.outputCount = other.outputCount;
+
+		// Initialise network
+		nodes = new List<NeatNode>(other.nodes);
+		genes = new List<NeatGene>(other.genes);
+		geneTable = new Dictionary<Vector2Int, NeatGene>(other.geneTable);
+	}
+
+
+	/// <summary>
+	/// Create a gene between 2 nodes
+	/// </summary>
+	/// <param name="inNodeId">The index of the node for the gene to leave from</param>
+	/// <param name="outNode">The index of the node for the gene to enter</param>
+	/// <returns>The newly created gene object</returns>
+	private NeatGene CreateGene(int fromNodeId, int toNodeId)
     {
         Vector2Int key = new Vector2Int(fromNodeId, toNodeId);
 

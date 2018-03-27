@@ -32,11 +32,14 @@ public class NeuralObserver : MonoBehaviour
 	void SelectNewTarget()
 	{
 		NeuralInputAgent[] agents = FindObjectsOfType<NeuralInputAgent>();
-
+		
 		viewTarget = null;
 
 		for (int i = 0; i < agents.Length; ++i)
-			if (agents[i].character.isAlive && (viewTarget == null || agents[i].network.fitness > viewTarget.network.fitness)) 
+			if (agents[i].character.isAlive && 
+				// Pick target with highest fitness currently and consider fitness in past generation
+				(viewTarget == null || agents[i].network.fitness > viewTarget.network.fitness || agents[i].network.previousFitness / GameMode.Main.TotalRounds > viewTarget.network.fitness)
+			)
 				viewTarget = agents[i];
 
 		previewWindow.SetVisualisation(viewTarget);

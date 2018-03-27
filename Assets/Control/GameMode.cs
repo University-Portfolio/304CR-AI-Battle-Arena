@@ -22,7 +22,10 @@ public class GameMode : MonoBehaviour
 	[SerializeField]
 	private int rounds = 5;
 	public int currentRound { get; private set; }
+	private float nextRoundCooldown;
+
 	public bool IsGameFinished { get { return currentRound > rounds; } }
+	public bool IsStageInScoringSize { get { return stage.currentSize <= stage.DefaultSize - 5; } }
 	public int TotalRounds { get { return rounds; } }
 
 
@@ -53,6 +56,26 @@ public class GameMode : MonoBehaviour
 		if (IsGameFinished)
 			return;
 
+		// Count down to next round
+		if (nextRoundCooldown != 0.0f)
+		{
+			nextRoundCooldown -= Time.deltaTime;
+			if (nextRoundCooldown < 0.0f)
+			{
+				nextRoundCooldown = 0.0f;
+
+				// Advance the round
+				currentRound++;
+				if (currentRound <= rounds)
+				{
+					Debug.Log("Starting round " + currentRound);
+					stage.ResetStage();
+					RespawnCharacters();
+				}
+			}
+			return;
+		}
+
 		// Count alive characters
 		List<Character> remaining = new List<Character>();
 		foreach (Character character in characters)
@@ -67,13 +90,7 @@ public class GameMode : MonoBehaviour
 			if (remaining.Count > 0)
 				remaining[0].roundWinCount++;
 
-			currentRound++;
-			if (currentRound <= rounds)
-			{
-				Debug.Log("Starting round " + currentRound);
-				stage.ResetStage();
-				RespawnCharacters();
-			}
+			nextRoundCooldown = 1.0f;
 		}
 	}
 

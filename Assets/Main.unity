@@ -1068,7 +1068,7 @@ MonoBehaviour:
   defaultCharacter: {fileID: 114226696672560770, guid: b92b2d42acbdbd04eab227f95d0625bc,
     type: 2}
   characterCount: 32
-  rounds: 5
+  rounds: 1
 --- !u!4 &881392845
 Transform:
   m_ObjectHideFlags: 0

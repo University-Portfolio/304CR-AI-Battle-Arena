@@ -42,6 +42,7 @@ public class NeuralController : MonoBehaviour
 		}
 		
 		neatController = new NeatController();
+		neatController.speciesDeltaThreshold = 2.0f;
 		NeatNetwork[] population = neatController.GenerateBasePopulation(GameMode.Main.CharacterCount, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
 
 
@@ -66,7 +67,6 @@ public class NeuralController : MonoBehaviour
 			for (int i = 0; i < GameMode.Main.CharacterCount; ++i)
 			{
 				NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
-				population[i].CreateMutations();
 				agent.AssignNetwork(population[i]);
 			}
 		}
