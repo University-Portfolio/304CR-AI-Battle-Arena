@@ -13,11 +13,17 @@ public class GameMode : MonoBehaviour
 	[SerializeField]
 	private Character defaultCharacter;
 	[SerializeField]
-	private int characterCount = 30;
+	private int characterCount = 32;
 	public int CharacterCount { get { return characterCount; } }
-
+	
 	public StageController stage { get; private set; }
 	public Character[] characters { get; private set; }
+
+	[SerializeField]
+	private int rounds = 5;
+	public int currentRound { get; private set; }
+	public bool IsGameFinished { get { return currentRound > rounds; } }
+	public int TotalRounds { get { return rounds; } }
 
 
 	void Start ()
@@ -43,9 +49,38 @@ public class GameMode : MonoBehaviour
 	
 	void Update ()
 	{
+		// Game over
+		if (IsGameFinished)
+			return;
+
+		// Count alive characters
+		List<Character> remaining = new List<Character>();
+		foreach (Character character in characters)
+			if (character.isAlive)
+				remaining.Add(character);
 		
+
+		// Reset when only 1 character exists
+		if (remaining.Count <= 1)
+		{
+			// This is the winner
+			if (remaining.Count > 0)
+				remaining[0].roundWinCount++;
+
+			currentRound++;
+			if (currentRound <= rounds)
+			{
+				Debug.Log("Starting round " + currentRound);
+				stage.ResetStage();
+				RespawnCharacters();
+			}
+		}
 	}
 
+	/// <summary>
+	/// Create objects for all the characters
+	/// </summary>
+	/// <param name="spawnPlayer">Should a player be spawned</param>
 	private void SpawnCharacters(bool spawnPlayer)
 	{
 		// Cleanup old characters
@@ -77,8 +112,39 @@ public class GameMode : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Respawn the current character (Don't recreate the objects)
+	/// </summary>
+	private void RespawnCharacters()
+	{
+		// Shuffle order
+		List<Character> oldOrder = new List<Character>(characters);
+		for (int i = 0; i < characterCount; ++i)
+		{
+			int index = Random.Range(0, oldOrder.Count);
+			characters[i] = oldOrder[index];
+			oldOrder.RemoveAt(index);
+		}
+
+		// Place them in ring
+		for (int i = 0; i < characterCount; ++i)
+		{
+			float angle = (i / (float)characterCount) * Mathf.PI * 2.0f;
+
+			characters[i].transform.position = stage.transform.position + new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * (stage.DefaultSize - 3) + new Vector3(0, 1, 0);
+			characters[i].directionAngle = angle + Mathf.PI;
+			characters[i].Respawn();
+		}
+	}
+
+	/// <summary>
+	/// Restarts the entire game
+	/// </summary>
+	/// <param name="spawnPlayer">Should we spawn a player</param>
 	public void ResetGame(bool spawnPlayer = false)
 	{
+		Debug.Log("Reseting game");
+		currentRound = 1;
 		stage.ResetStage();
 		SpawnCharacters(spawnPlayer);
 	}

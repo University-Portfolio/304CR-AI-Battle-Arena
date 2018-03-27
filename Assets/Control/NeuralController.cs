@@ -23,10 +23,16 @@ public class NeuralController : MonoBehaviour
 	/// Weight for agent kills on network fitness
 	/// </summary>
 	public float killWeight = 15.0f;
+	/// <summary>
+	/// Weight for agent winning a round on network fitness
+	/// </summary>
+	public float winnerWeight = 5.0f;
 
 
 	void Start ()
 	{
+		Application.runInBackground = true;
+
 		if (main == null)
 			main = this;
 		else
@@ -44,12 +50,30 @@ public class NeuralController : MonoBehaviour
 		{
 			NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
 			population[i].CreateMutations();
+
+			for(int n = 0; n < 40; ++n)
+				population[i].CreateMutations();
+
 			agent.AssignNetwork(population[i]);
 		}
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		
+	void Update ()
+	{
+		// Start the next generation of nets
+		if (GameMode.Main.IsGameFinished)
+		{
+			Debug.Log("Breeding next generation");
+			NeatNetwork[] population = neatController.BreedNextGeneration();
+
+			GameMode.Main.ResetGame();
+			for (int i = 0; i < GameMode.Main.CharacterCount; ++i)
+			{
+				NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
+				population[i].CreateMutations();
+				agent.AssignNetwork(population[i]);
+			}
+		}
 	}
 }

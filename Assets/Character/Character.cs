@@ -52,6 +52,7 @@ public class Character : MonoBehaviour
     /// </summary>
     private float deltaAngle;
 
+
 	/// <summary>
 	/// The time left until the character is no longer shooting
 	/// </summary>
@@ -68,13 +69,14 @@ public class Character : MonoBehaviour
 	public bool IsDead { get { return !isAlive; } }
 
 	public int killCount { get; private set; }
+	public int roundWinCount;
 
 
 	void Start ()
     {
         characterController = GetComponent<CharacterController>();
 		isAlive = true;
-
+		roundWinCount = 0;
 	}
 
     void Update()
@@ -194,5 +196,16 @@ public class Character : MonoBehaviour
 	{
 		characterController.enabled = false;
 		isAlive = false;
+	}
+
+	/// <summary>
+	/// Called when this character respawns
+	/// </summary>
+	public void Respawn()
+	{
+		isAlive = true;
+		characterController.enabled = true;
+		shootTimer = 0.0f;
+		arrowTimer = 0.0f;
 	}
 }

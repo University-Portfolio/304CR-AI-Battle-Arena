@@ -81,7 +81,10 @@ public class NeuralInputAgent : MonoBehaviour
 			return;
 
 		// Set network fitness from survival and kill count
-		network.fitness = survialTime * NeuralController.main.survialWeight + killCount * NeuralController.main.killWeight;
+		network.fitness = 
+			survialTime * NeuralController.main.survialWeight + 
+			killCount * NeuralController.main.killWeight + 
+			character.roundWinCount * NeuralController.main.winnerWeight;
 
 		if (character.IsDead)
 			return;

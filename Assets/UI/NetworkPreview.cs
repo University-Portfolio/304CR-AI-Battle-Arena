@@ -17,8 +17,15 @@ public class NetworkPreview : MonoBehaviour
 	/// </summary>
 	private NeuralInputAgent currentTarget;
 
+
+	[SerializeField]
+	private Text roundText;
+
 	[SerializeField]
 	private Text fitnessText;
+	[SerializeField]
+	private Text generationText;
+
 
 	[SerializeField]
 	private NetworkNode defaultNode;
@@ -67,11 +74,15 @@ public class NetworkPreview : MonoBehaviour
 		{
 			RenderVision();
 
+			roundText.text = GameMode.Main.currentRound + "/" + GameMode.Main.TotalRounds;
 			fitnessText.text = "" + currentTarget.network.fitness;
+			generationText.text = "" + currentTarget.network.controller.generationCounter;
 		}
 		else
 		{
+			roundText.text = "N/A";
 			fitnessText.text = "N/A";
+			generationText.text = "N/A";
 		}
 	}
 
@@ -194,6 +205,8 @@ public class NetworkPreview : MonoBehaviour
 		// Spawn hidden nodes
 		// Construct layers, to display
 		Dictionary<int, List<NeatNode>> layers = new Dictionary<int, List<NeatNode>>();
+		int maxDistance = 0;
+		int minDistance = 10000;
 		for (int i = input.network.inputCount + input.network.outputCount; i < input.network.nodes.Count; ++i)
 		{
 			NeatNode logicNode = input.network.nodes[i];
@@ -202,25 +215,31 @@ public class NetworkPreview : MonoBehaviour
 			if (!layers.ContainsKey(distance))
 				layers[distance] = new List<NeatNode>();
 			layers[distance].Add(logicNode);
+
+			if (distance > maxDistance)
+				maxDistance = distance;
+			if (distance < minDistance)
+				minDistance = distance;
 		}
 
 		// Draw nodes as layers
-		Vector3 hiddenAnchor = hiddenSection.position + new Vector3(-hiddenSection.sizeDelta.x * 0.5f, hiddenSection.sizeDelta.y * 0.5f);
+		Vector3 hiddenStart = hiddenSection.position + new Vector3(-hiddenSection.rect.width * 0.5f, 0);
+		Vector3 hiddenEnd = hiddenSection.position + new Vector3(hiddenSection.rect.width * 0.5f, 0);
 
 		foreach (var layer in layers)
 		{
-			int layerIndex = layers.Count - layer.Key;
+			float layerDist = 1.0f - ((layer.Key - minDistance) / (float)(maxDistance - minDistance));
 			int nodeCount = layer.Value.Count;
 
 			for (int i = 0; i < nodeCount; ++i)
 			{
-				Vector2 step = new Vector2(hiddenSection.sizeDelta.x / layers.Count, hiddenSection.sizeDelta.y / nodeCount);
+				float step = hiddenSection.rect.height / nodeCount;
 
 				NetworkNode node = Instantiate(defaultNode, hiddenSection);
 				NeatNode logicNode = layer.Value[i];
 				
 				RectTransform nodeRect = node.GetComponent<RectTransform>();
-				nodeRect.position = hiddenAnchor + new Vector3(layerIndex * step.x, -i * step.y) + new Vector3(nodeRect.sizeDelta.x * 0.5f, -nodeRect.sizeDelta.y * 0.5f);
+				nodeRect.position = Vector3.Lerp(hiddenStart, hiddenEnd, layerDist) + new Vector3(0, (nodeCount / 2) * step + step * - i);
 
 				// Update visual and cache
 				node.SetVisualisation(logicNode);

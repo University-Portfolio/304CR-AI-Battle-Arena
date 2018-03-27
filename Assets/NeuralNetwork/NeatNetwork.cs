@@ -13,6 +13,11 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
     /// </summary>
     public readonly NeatController controller;
 
+    /// <summary>
+    /// The species this network is a member of
+    /// </summary>
+    public NeatSpecies assignedSpecies;
+
 
     public List<NeatNode> nodes { get; private set; }
 	public List<NeatGene> genes { get; private set; }
@@ -164,7 +169,7 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 					gene.weight *= Random.value;
 
 				// Flip enabled state for gene
-				else
+				else if(controller.geneStateFlipMutation)
 					gene.isEnabled = !gene.isEnabled;
 			}
 		}
@@ -299,9 +304,9 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 		float geneCount = Mathf.Max(networkA.genes.Count, networkB.genes.Count);
 		
 		float networkDelta =
-			controller.excessCoefficient * excessCount / geneCount +
-			controller.disjointCoefficient * disjointCount / geneCount +
-			controller.weightDiffCoefficient * (matchTotalWeightDiff / (float)matchCount);
+			controller.excessCoefficient * (geneCount == 0 ? 0 : excessCount / geneCount) +
+			controller.disjointCoefficient * (geneCount == 0 ? 0 : disjointCount / geneCount) +
+			controller.weightDiffCoefficient * (matchCount == 0 ? 0 : (matchTotalWeightDiff / (float)matchCount));
 
 		// Each network can be considered under the same species, if their difference is in acceptable range
 		return networkDelta <= controller.speciesDeltaThreshold;
@@ -311,7 +316,7 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
     /// Perform matching on 2 networks to breed them
     /// </summary>
     /// <returns>The new child network</returns>
-    public NeatNetwork Breed(NeatNetwork networkA, NeatNetwork networkB)
+    public static NeatNetwork Breed(NeatNetwork networkA, NeatNetwork networkB)
     {
         // Construct gene table (A genes in index 0 B genes in index 1)
         Dictionary<int, NeatGene[]> geneTable = new Dictionary<int, NeatGene[]>();
