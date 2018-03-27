@@ -139,4 +139,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startSize: 30
-  decayRate: 0.3
+  decayRate: 0.5
