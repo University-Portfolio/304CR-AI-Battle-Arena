@@ -1,10 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Xml;
 
 
 public class NeatSpecies
 {
+	/// <summary>
+	/// The controller which spawned this species
+	/// </summary>
+	public readonly NeatController controller;
+
 	/// <summary>
 	/// The network which represents this species
 	/// </summary>
@@ -17,23 +23,39 @@ public class NeatSpecies
 	/// <summary>
 	/// The colour to represent this species with
 	/// </summary>
-	public readonly Color colour;
+	public Color colour { get; private set; }
+
+	/// <summary>
+	/// The unique guid for this species
+	/// </summary>
+	public System.Guid guid { get; private set; }
+
 	/// <summary>
 	/// How many generations this specieis has lived for
 	/// </summary>
 	public int generationsLived { get; private set; }
 
 
-	public NeatSpecies(NeatNetwork representative)
+	public NeatSpecies(NeatController controller, NeatNetwork representative)
 	{
+		this.controller = controller;
 		this.representative = representative;
 		colour = Color.HSVToRGB(Random.value, Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f));
 		generationsLived = 0;
+		guid = System.Guid.NewGuid();
 
 		population = new List<NeatNetwork>();
 		population.Add(representative);
 		representative.assignedSpecies = this;
 	}
+
+	public NeatSpecies(NeatController controller, XmlElement content)
+	{
+		this.controller = controller;
+		population = new List<NeatNetwork>();
+		ReadXML(content);
+	}
+
 
 	/// <summary>
 	/// Attempt to add a network to this species
@@ -98,6 +120,7 @@ public class NeatSpecies
 
 		// Select a new represetative from current members
 		representative = population[Random.Range(0, breedRange)];
+		representative.assignedSpecies = null;
 
 
 		// Generate children
@@ -125,5 +148,50 @@ public class NeatSpecies
 		// Update (Population will be reassigned if this species is going to survive)
 		population.Clear();
 		generationsLived++;
+	}
+
+	/// <summary>
+	/// Write data about this network to xml
+	/// </summary>
+	/// <param name="writer"></param>
+	public void WriteXML(XmlWriter writer)
+	{
+		// Write general
+		writer.WriteAttributeString("ColourR", "" + colour.r);
+		writer.WriteAttributeString("ColourG", "" + colour.g);
+		writer.WriteAttributeString("ColourB", "" + colour.b);
+		writer.WriteAttributeString("Guid", "" + guid.ToString());
+		writer.WriteAttributeString("generationsLived", "" + generationsLived);
+
+
+		writer.WriteStartElement("Representative");
+		representative.WriteXML(writer);
+		writer.WriteEndElement();
+	}
+
+	/// <summary>
+	/// Read in the xml for a specfic generation
+	/// </summary>
+	/// <param name="writer"></param>
+	public void ReadXML(XmlElement entry)
+	{
+		colour = new Color(
+			float.Parse(entry.GetAttribute("ColourR")),
+			float.Parse(entry.GetAttribute("ColourG")),
+			float.Parse(entry.GetAttribute("ColourB"))
+		);
+		guid = new System.Guid(entry.GetAttribute("Guid"));
+		generationsLived = int.Parse(entry.GetAttribute("generationsLived"));
+		population.Clear();
+
+
+		foreach (XmlElement child in entry.ChildNodes)
+		{
+			if (child.Name == "Representative")
+			{
+				representative = new NeatNetwork(controller, child);
+				break;
+			}
+		}
 	}
 }

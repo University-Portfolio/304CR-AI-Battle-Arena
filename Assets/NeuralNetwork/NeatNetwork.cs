@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Xml;
 
 
 /// <summary>
@@ -23,8 +24,8 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 	public List<NeatGene> genes { get; private set; }
 	private Dictionary<Vector2Int, NeatGene> geneTable;
 
-    public readonly int inputCount;
-    public readonly int outputCount;
+    public int inputCount { get; private set; }
+	public int outputCount { get; private set; }
 
 
 	/// <summary>
@@ -85,6 +86,12 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 		nodes = new List<NeatNode>(other.nodes);
 		genes = new List<NeatGene>(other.genes);
 		geneTable = new Dictionary<Vector2Int, NeatGene>(other.geneTable);
+	}
+
+	public NeatNetwork(NeatController controller, XmlElement content)
+	{
+		this.controller = controller;
+		ReadXML(content);
 	}
 
 
@@ -424,5 +431,113 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 			return -1;
 		else
 			return 1;
+	}
+
+	/// <summary>
+	/// Write data about this network to xml
+	/// </summary>
+	/// <param name="writer"></param>
+	public void WriteXML(XmlWriter writer)
+	{
+		// Write general
+		writer.WriteAttributeString("fitness", "" + fitness);
+		writer.WriteAttributeString("previousFitness", "" + previousFitness);
+
+		if(assignedSpecies != null)
+			writer.WriteAttributeString("speciesGuid", "" + assignedSpecies.guid.ToString());
+
+
+		// Write nodes
+		writer.WriteStartElement("Nodes");
+		writer.WriteAttributeString("inputCount", "" + inputCount);
+		writer.WriteAttributeString("outputCount", "" + outputCount);
+		writer.WriteAttributeString("totalCount", "" + nodes.Count);
+		writer.WriteEndElement();
+
+
+		// Write genes
+		writer.WriteStartElement("Genes");
+		foreach (NeatGene gene in genes)
+		{
+			writer.WriteStartElement("Gene");
+			writer.WriteAttributeString("to", "" + gene.toNodeId);
+			writer.WriteAttributeString("from", "" + gene.fromNodeId);
+			writer.WriteAttributeString("isEnabled", "" + gene.isEnabled);
+			writer.WriteAttributeString("weight", "" + gene.weight);
+			writer.WriteEndElement();
+		}
+		writer.WriteEndElement();
+	}
+	
+	/// <summary>
+	/// Read in the xml for a specfic generation
+	/// </summary>
+	/// <param name="writer"></param>
+	public void ReadXML(XmlElement entry)
+	{
+		fitness = float.Parse(entry.GetAttribute("fitness"));
+		previousFitness = float.Parse(entry.GetAttribute("previousFitness"));
+
+
+		foreach (XmlElement child in entry.ChildNodes)
+		{
+			// Parse nodes
+			if (child.Name == "Nodes")
+			{
+				nodes = new List<NeatNode>();
+
+				inputCount = int.Parse(child.GetAttribute("inputCount"));
+				outputCount = int.Parse(child.GetAttribute("outputCount"));
+				int totalCount = int.Parse(child.GetAttribute("totalCount"));
+				
+				// Create nodes
+				for (int i = 0; i < totalCount; ++i)
+				{
+					if (i < inputCount)
+						nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Input, this));
+					else if (i < inputCount + outputCount)
+						nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Output, this));
+					else
+						nodes.Add(new NeatNode(nodes.Count, NeatNode.NodeType.Hidden, this));
+				}
+			}
+
+			// Parse genes
+			else if (child.Name == "Genes")
+			{
+				genes = new List<NeatGene>();
+				geneTable = new Dictionary<Vector2Int, NeatGene>();
+
+				foreach (XmlElement gene in child.ChildNodes)
+				{
+					if (gene.Name != "Gene")
+						continue;
+
+					int toId = int.Parse(gene.GetAttribute("to"));
+					int fromId = int.Parse(gene.GetAttribute("from"));
+
+					NeatGene newGene = CreateGene(fromId, toId);
+					newGene.isEnabled = bool.Parse(gene.GetAttribute("isEnabled"));
+					newGene.weight = float.Parse(gene.GetAttribute("weight"));
+				}
+			}
+		}
+
+
+		// Fetch assigned species from this
+		if (entry.HasAttribute("speciesGuid"))
+		{
+			System.Guid guid = new System.Guid(entry.GetAttribute("speciesGuid"));
+			
+			// Fetch species
+			foreach (var species in controller.activeSpecies)
+				if (species.guid == guid)
+				{
+					if (!species.AttemptAdd(this))
+						Debug.LogWarning("Couldn't assign network desired species");
+					break;
+				}
+		}
+
 	}
 }

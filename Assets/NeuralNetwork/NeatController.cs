@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Xml;
 
 
 /// <summary>
@@ -19,6 +20,15 @@ public class NeatController
 	/// What generation are we currently on
 	/// </summary>
 	public int generationCounter { get; private set; }
+
+	/// <summary>
+	/// The name of this collection of networks
+	/// </summary>
+	public readonly string collectionName;
+	/// <summary>
+	/// What folder to save/load data from
+	/// </summary>
+	public string dataFolder = "Neat/Collections/";
 
 
 	/// <summary>
@@ -74,8 +84,10 @@ public class NeatController
     public List<NeatSpecies> activeSpecies { get; private set; }
 
 
-	public NeatController()
+	public NeatController(string collectionName)
 	{
+		this.collectionName = collectionName;
+		activeSpecies = new List<NeatSpecies>();
 		innovationIds = new Dictionary<Vector2Int, int>();
 	}
 
@@ -111,9 +123,23 @@ public class NeatController
 	/// <summary>
 	/// Generate a starting population
 	/// </summary>
-	public NeatNetwork[] GenerateBasePopulation(int count, int inputCount, int outputCount, int initialMutations = 1)
+	public NeatNetwork[] GenerateBasePopulation(int count, int inputCount, int outputCount, int initialMutations = 1, bool attemptLoad = true)
 	{
-        generationCounter = 1;
+		if (attemptLoad)
+		{
+			population = new NeatNetwork[count];
+
+			if (LoadXML())
+			{
+				Debug.Log("Loaded NEAT collection '" + collectionName + "' from generation " + generationCounter);
+				return BreedNextGeneration(); // Can only load that generation as a starting point
+			}
+			else
+				Debug.Log("Starting NEAT collection '" + collectionName + "' from scratch");
+		}
+
+
+		generationCounter = 1;
         population = new NeatNetwork[count];
 		activeSpecies = new List<NeatSpecies>();
 
@@ -135,6 +161,8 @@ public class NeatController
     /// </summary>
     public NeatNetwork[] BreedNextGeneration()
     {
+		SaveXML();
+
 		// Calulate the average adjusted fitness
 		float totalFitness = 0.0f;
 		Dictionary<NeatSpecies, float> fitness = new Dictionary<NeatSpecies, float>();
@@ -190,7 +218,9 @@ public class NeatController
 
 		foreach (NeatSpecies species in activeSpecies)
 			species.NextGeneration(allocation[species], newPopulation);
-		
+
+		population = newPopulation.ToArray();
+
 
 		// Assign correct species to the new networks
 		AssignPopulationToSpecies();
@@ -220,7 +250,7 @@ public class NeatController
             // Create a new species with this as a rep
             if(!added)
             {
-                NeatSpecies newSpecies = new NeatSpecies(network);
+                NeatSpecies newSpecies = new NeatSpecies(this, network);
 				activeSpecies.Add(newSpecies);
             }
 		}
@@ -234,5 +264,161 @@ public class NeatController
 				activeSpecies.RemoveAt(i);
 				--i;
 			}
+	}
+
+	/// <summary>
+	/// Save the current working data in an xml
+	/// </summary>
+	public void SaveXML()
+	{
+		if (!System.IO.Directory.Exists(dataFolder + collectionName))
+			System.IO.Directory.CreateDirectory(dataFolder + collectionName);
+
+		string path = dataFolder + collectionName + "/gen_" + generationCounter + ".xml";
+
+		using (XmlWriter writer = XmlWriter.Create(path))
+		{
+			writer.WriteStartDocument();
+			writer.WriteStartElement("Generation");
+
+			writer.WriteElementString("innovationCounter", "" + innovationCounter);
+			writer.WriteElementString("generationCounter", "" + generationCounter);
+
+			// Write genes
+			writer.WriteStartElement("innovations");
+			foreach (var pair in innovationIds)
+			{
+				writer.WriteStartElement("gene");
+				writer.WriteAttributeString("from", "" + pair.Key.x);
+				writer.WriteAttributeString("to", "" + pair.Key.y);
+				writer.WriteAttributeString("inno", "" + pair.Value);
+				writer.WriteEndElement();
+			}
+			writer.WriteEndElement();
+
+
+			// Write species
+			writer.WriteStartElement("ActiveSpecies");
+			foreach (NeatSpecies species in activeSpecies)
+			{
+				writer.WriteStartElement("Species");
+				species.WriteXML(writer);
+				writer.WriteEndElement();
+			}
+			writer.WriteEndElement();
+
+
+			// Write networks
+			writer.WriteStartElement("Population");
+			foreach (NeatNetwork network in population)
+			{
+				writer.WriteStartElement("Network");
+				network.WriteXML(writer);
+				writer.WriteEndElement();
+			}
+			writer.WriteEndElement();
+
+			writer.WriteEndElement();
+			writer.WriteEndDocument();
+		}
+
+		Debug.Log("Written to '" + path + "'");
+	}
+
+
+	/// <summary>
+	/// Read in the xml for a specfic generation
+	/// </summary>
+	/// <param name="generation">The desired generation to load (Will load highest found, if -1)</param>
+	public bool LoadXML(int generation = -1)
+	{
+		if (!System.IO.Directory.Exists(dataFolder + collectionName))
+			return false;
+
+		// Attempt to find highest generation
+		if (generation == -1)
+		{
+			generation = 0;
+			while (true)
+			{
+				if (!System.IO.File.Exists(dataFolder + collectionName + "/gen_" + (generation + 1) + ".xml"))
+					break;
+				else
+					generation++;
+			}
+		}
+
+		string path = dataFolder + collectionName + "/gen_" + generation + ".xml";
+
+		if (!System.IO.File.Exists(path))
+			return false;
+
+
+		XmlDocument document = new XmlDocument();
+		document.Load(path);
+
+		// Read document
+		XmlElement root = document.DocumentElement;
+		foreach (XmlElement child in root.ChildNodes)
+		{
+			if (child.Name == "innovationCounter")
+				innovationCounter = System.Int32.Parse(child.InnerText);
+
+			else if (child.Name == "generationCounter")
+				generationCounter = System.Int32.Parse(child.InnerText);
+
+
+			// Read genes
+			else if (child.Name == "Generation")
+			{
+				innovationIds = new Dictionary<Vector2Int, int>();
+				foreach (XmlElement gene in child.ChildNodes)
+				{
+					if (gene.Name != "gene")
+						continue;
+
+					int fromId = System.Int32.Parse(child.GetAttribute("from"));
+					int toId = System.Int32.Parse(child.GetAttribute("to"));
+					int inno = System.Int32.Parse(child.GetAttribute("inno"));
+					innovationIds[new Vector2Int(fromId, toId)] = inno;
+				}
+			}
+
+
+			// Read species (Need to read it before networks)
+			else if (child.Name == "ActiveSpecies")
+			{
+				activeSpecies = new List<NeatSpecies>();
+				foreach (XmlElement entry in child.ChildNodes)
+				{
+					if (entry.Name != "Species")
+						continue;
+
+					activeSpecies.Add(new NeatSpecies(this, entry));
+				}
+			}
+
+
+			// Read networks
+			else if (child.Name == "Population")
+			{
+				List<NeatNetwork> newPopulation = new List<NeatNetwork>();
+
+				foreach (XmlElement entry in child.ChildNodes)
+				{
+					if (entry.Name != "Network")
+						continue;
+
+					NeatNetwork network = new NeatNetwork(this, entry);
+					newPopulation.Add(network);
+				}
+
+				population = newPopulation.ToArray();
+			}
+
+		}
+
+		Debug.Log("Read from '" + path + "'");
+		return true;
 	}
 }
