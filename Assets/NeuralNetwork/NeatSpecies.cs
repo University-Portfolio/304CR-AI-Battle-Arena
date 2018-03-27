@@ -93,7 +93,7 @@ public class NeatSpecies
 		{
 			// Count how many networks in this species align to this individual
 			int matches = 0;
-			foreach (NeatNetwork other in population)
+			foreach (NeatNetwork other in controller.population)
 				if (network == other || NeatNetwork.AreSameSpecies(network, other))
 					matches++;
 
