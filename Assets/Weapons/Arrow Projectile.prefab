@@ -37,8 +37,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4772054824629036}
   - component: {fileID: 114269182745611212}
-  - component: {fileID: 135479162664542522}
   - component: {fileID: 54579562908831560}
+  - component: {fileID: 65372041429693322}
   m_Layer: 9
   m_Name: Arrow Projectile
   m_TagString: Untagged
@@ -129,6 +129,18 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &65372041429693322
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1498579301784478}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.5, y: 0.5, z: 0.5}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &114269182745611212
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -142,15 +154,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animatedTransform: {fileID: 4743785852230358}
   speed: 30
---- !u!135 &135479162664542522
-SphereCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1498579301784478}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.25
-  m_Center: {x: 0, y: 0, z: 0}

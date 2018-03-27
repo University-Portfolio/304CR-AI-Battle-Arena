@@ -88,9 +88,8 @@ public class NeuralInputAgent : MonoBehaviour
 
 		if (character.IsDead)
 			return;
-
-		if(GameMode.Main.IsStageInScoringSize)
-			survialTime += Time.deltaTime;
+		
+		survialTime += Time.deltaTime;
 		killCount = character.killCount;
 
 		RenderVision();

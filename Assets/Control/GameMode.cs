@@ -25,7 +25,6 @@ public class GameMode : MonoBehaviour
 	private float nextRoundCooldown;
 
 	public bool IsGameFinished { get { return currentRound > rounds; } }
-	public bool IsStageInScoringSize { get { return stage.currentSize <= stage.DefaultSize - 5; } }
 	public int TotalRounds { get { return rounds; } }
 
 
