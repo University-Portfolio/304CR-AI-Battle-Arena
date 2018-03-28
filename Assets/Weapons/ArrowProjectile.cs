@@ -51,12 +51,12 @@ public class ArrowProjectile : MonoBehaviour
 
 	}
 
-    void OnCollisionEnter(Collision collision)
+    void OnTriggerEnter(Collider collider)
     {
 		// Attempt to attack another character
 		if(inFlight)
 		{
-			Character character = collision.gameObject.GetComponent<Character>();
+			Character character = collider.gameObject.GetComponent<Character>();
 
 			// Hit character
 			if (character != null)
