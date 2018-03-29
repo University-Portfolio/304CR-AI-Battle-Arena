@@ -1511,8 +1511,8 @@ MonoBehaviour:
   gravityVector: {x: 0, y: -20, z: 0}
   dragFactor: 10
   moveSpeed: 60
-  turnSpeed: 5
-  shootDuration: 0.5
+  turnSpeed: 7
+  shootDuration: 0.6
   roundWinCount: 0
 --- !u!114 &114766526707172106
 MonoBehaviour:

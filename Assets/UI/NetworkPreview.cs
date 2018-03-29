@@ -6,27 +6,38 @@ using UnityEngine.UI;
 
 public class NetworkPreview : MonoBehaviour
 {
+    [Header("Visual Fields")]
     [SerializeField]
     private RawImage display;
+    [SerializeField]
+    private RawImage populationDisplay;
 
-	private Texture2D displayTexture;
-		
-
-	/// <summary>
-	/// The target which is currently being visualised
-	/// </summary>
-	private NeuralInputAgent currentTarget;
+    private Texture2D displayTexture;
+    private Texture2D populationTexture;
 
 
-	[SerializeField]
+    /// <summary>
+    /// The target which is currently being visualised
+    /// </summary>
+    private NeuralInputAgent currentTarget;
+
+
+    [Header("Text Fields")]
+    [SerializeField]
 	private Text roundText;
-
 	[SerializeField]
 	private Text fitnessText;
-	[SerializeField]
-	private Text generationText;
+    [SerializeField]
+    private Text generationText;
+    [SerializeField]
+    private Text killsText;
+    [SerializeField]
+    private Text ageText;
+    [SerializeField]
+    private Text speciesText;
 
 
+    [Header("Preview Fields")]
 	[SerializeField]
 	private NetworkNode defaultNode;
 	[SerializeField]
@@ -58,13 +69,19 @@ public class NetworkPreview : MonoBehaviour
 
 	void Start ()
     {
-		// Create texture for visualisation
-		displayTexture = new Texture2D(NeuralInputAgent.ViewResolution, NeuralInputAgent.ViewResolution);
+        // Create texture for visualisation
+        displayTexture = new Texture2D(NeuralInputAgent.ViewResolution, NeuralInputAgent.ViewResolution);
 		displayTexture.filterMode = FilterMode.Point;
 		displayTexture.wrapMode = TextureWrapMode.Clamp;
 		display.texture = displayTexture;
 
-		nodes = new Dictionary<int, NetworkNode>();
+        // Create texture for populatio visual 
+        populationTexture = new Texture2D(2, 2);
+        populationTexture.filterMode = FilterMode.Point;
+        populationTexture.wrapMode = TextureWrapMode.Clamp;
+        populationDisplay.texture = populationTexture;
+
+        nodes = new Dictionary<int, NetworkNode>();
 		genes = new Dictionary<int, NetworkGene>();
 	}
 	
@@ -73,17 +90,29 @@ public class NetworkPreview : MonoBehaviour
 		if (currentTarget != null)
 		{
 			RenderVision();
+            RenderPopulation();
 
-			roundText.text = GameMode.Main.currentRound + "/" + GameMode.Main.TotalRounds;
+
+            roundText.text = GameMode.Main.currentRound + "/" + GameMode.Main.TotalRounds;
 			fitnessText.text = "" + currentTarget.network.fitness;
 			generationText.text = "" + currentTarget.network.controller.generationCounter;
-		}
+            killsText.text = "" + currentTarget.killCount;
+            ageText.text = "" + currentTarget.network.age;
+
+            speciesText.text = currentTarget.network.assignedSpecies.guid.ToString();
+            speciesText.color = currentTarget.network.assignedSpecies.colour;
+
+        }
 		else
 		{
 			roundText.text = "N/A";
 			fitnessText.text = "N/A";
 			generationText.text = "N/A";
-		}
+            killsText.text = "N/A";
+            ageText.text = "N/A";
+            speciesText.text = "N/A";
+            speciesText.color = Color.white;
+        }
 	}
 
 	/// <summary>
@@ -270,6 +299,30 @@ public class NetworkPreview : MonoBehaviour
 		}
 	}
 
+    /// <summary>
+    /// Renders the visualisation for the current population
+    /// </summary>
+    void RenderPopulation()
+    {
+        List<NeatNetwork> population = new List<NeatNetwork>(NeuralController.main.neatController.population);
+        population.Sort((x, y) => x.CompareTo(y));
+        populationTexture.Resize(population.Count, 2);
+
+        for (int i = 0; i < population.Count; ++i)
+        {
+            NeatNetwork current = population[i];
+
+            populationTexture.SetPixel(i, 0, current.assignedSpecies.colour);
+
+            if (current == currentTarget.network)
+                populationTexture.SetPixel(i, 1, Color.white);
+            else
+                populationTexture.SetPixel(i, 1, current.assignedSpecies.colour);
+        }
+        
+        populationTexture.Apply(false, false);
+    }
+
 	/// <summary>
 	/// Updates the display to have the vision of the character
 	/// </summary>
@@ -301,4 +354,6 @@ public class NetworkPreview : MonoBehaviour
 
 		displayTexture.Apply(false, false);
 	}
+
+
 }

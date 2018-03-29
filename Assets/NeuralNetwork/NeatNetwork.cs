@@ -36,11 +36,16 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 	/// The fitness of this network in a past generation
 	/// </summary>
 	public float previousFitness { get; private set; }
+    /// <summary>
+    /// How old this network
+    /// </summary>
+    public int age { get; private set; }
 
 
 	public NeatNetwork(NeatController controller, int inputCount, int outputCount)
     {
         this.controller = controller;
+        age = 0;
 
         this.inputCount = inputCount;
         this.outputCount = outputCount;
@@ -78,8 +83,9 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 	{
 		this.controller = other.controller;
 		previousFitness = other.fitness;
+        this.age = other.age + 1;
 
-		this.inputCount = other.inputCount;
+        this.inputCount = other.inputCount;
 		this.outputCount = other.outputCount;
 
 		// Initialise network
@@ -441,9 +447,10 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 	{
 		// Write general
 		writer.WriteAttributeString("fitness", "" + fitness);
-		writer.WriteAttributeString("previousFitness", "" + previousFitness);
+        writer.WriteAttributeString("previousFitness", "" + previousFitness);
+        writer.WriteAttributeString("age", "" + age);
 
-		if(assignedSpecies != null)
+        if (assignedSpecies != null)
 			writer.WriteAttributeString("speciesGuid", "" + assignedSpecies.guid.ToString());
 
 
@@ -451,8 +458,8 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 		writer.WriteStartElement("Nodes");
 		writer.WriteAttributeString("inputCount", "" + inputCount);
 		writer.WriteAttributeString("outputCount", "" + outputCount);
-		writer.WriteAttributeString("totalCount", "" + nodes.Count);
-		writer.WriteEndElement();
+        writer.WriteAttributeString("totalCount", "" + nodes.Count);
+        writer.WriteEndElement();
 
 
 		// Write genes
@@ -476,10 +483,11 @@ public class NeatNetwork : System.IComparable<NeatNetwork>
 	public void ReadXML(XmlElement entry)
 	{
 		fitness = float.Parse(entry.GetAttribute("fitness"));
-		previousFitness = float.Parse(entry.GetAttribute("previousFitness"));
+        previousFitness = float.Parse(entry.GetAttribute("previousFitness"));
+        age = int.Parse(entry.GetAttribute("age"));
 
 
-		foreach (XmlElement child in entry.ChildNodes)
+        foreach (XmlElement child in entry.ChildNodes)
 		{
 			// Parse nodes
 			if (child.Name == "Nodes")
