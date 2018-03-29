@@ -139,4 +139,40 @@ public class NeatNode
 			return furthest + 1;
 		}
 	}
+
+    /// <summary>
+    /// Furthest path from input
+    /// </summary>
+    /// <param name="searchedNodes">Used to stop stack overflow</param>
+    /// <returns></returns>
+    public int FurthestDistanceFromInput(HashSet<int> searchedNodes = null)
+    {
+        if (type == NodeType.Input)
+            return 0;
+        else
+        {
+            int furthest = 0;
+
+            if (searchedNodes == null)
+                searchedNodes = new HashSet<int>();
+
+
+            for (int i = 0; i < inputGenes.Count; ++i)
+            {
+                int fromId = inputGenes[i].fromNodeId;
+
+                // Prevent infinite recursion in loops
+                if (searchedNodes.Contains(fromId))
+                    continue;
+
+                searchedNodes.Add(fromId);
+                int distance = network.nodes[fromId].FurthestDistanceFromInput(searchedNodes);
+
+                if (distance > furthest)
+                    furthest = distance;
+            }
+
+            return furthest + 1;
+        }
+    }
 }

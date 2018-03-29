@@ -49,17 +49,22 @@ public class NetworkPreview : MonoBehaviour
 	[SerializeField]
 	private RectTransform outputSection;
 
-	/// <summary>
-	/// Area to place the hidden nodes
-	/// </summary>
-	[SerializeField]
-	private RectTransform hiddenSection;
+    /// <summary>
+    /// Area to place the hidden nodes
+    /// </summary>
+    [SerializeField]
+    private RectTransform hiddenSection;
+
+    [SerializeField]
+    private RectTransform hiddenMin;
+    [SerializeField]
+    private RectTransform hiddenMax;
 
 
-	/// <summary>
-	/// Area to place genes
-	/// </summary>
-	[SerializeField]
+    /// <summary>
+    /// Area to place genes
+    /// </summary>
+    [SerializeField]
 	private RectTransform geneSection;
 
 	private Dictionary<int, NetworkNode> nodes;
@@ -231,52 +236,32 @@ public class NetworkPreview : MonoBehaviour
 
 
 
-		// Spawn hidden nodes
-		// Construct layers, to display
-		Dictionary<int, List<NeatNode>> layers = new Dictionary<int, List<NeatNode>>();
-		int maxDistance = 0;
-		int minDistance = 10000;
-		for (int i = input.network.inputCount + input.network.outputCount; i < input.network.nodes.Count; ++i)
-		{
-			NeatNode logicNode = input.network.nodes[i];
-			int distance = logicNode.FurthestDistanceFromOutput();
+        // Spawn hidden nodes
+        // Place each node at the average midpoint 
+        for (int i = input.network.inputCount + input.network.outputCount; i < input.network.nodes.Count; ++i)
+        {
+            NeatNode logicNode = input.network.nodes[i];
+            NetworkNode node = Instantiate(defaultNode, hiddenSection);
 
-			if (!layers.ContainsKey(distance))
-				layers[distance] = new List<NeatNode>();
-			layers[distance].Add(logicNode);
+            float inpDist = logicNode.FurthestDistanceFromInput();
+            float outDist = logicNode.FurthestDistanceFromOutput();
+            
+            int start = input.network.inputCount + input.network.outputCount;
 
-			if (distance > maxDistance)
-				maxDistance = distance;
-			if (distance < minDistance)
-				minDistance = distance;
-		}
+            float dx = (inpDist) / (outDist + inpDist);
+            float dy = (i - start) / (float)(input.network.nodes.Count - start);
 
-		// Draw nodes as layers
-		Vector3 hiddenStart = hiddenSection.position + new Vector3(-hiddenSection.rect.width * 0.5f, 0);
-		Vector3 hiddenEnd = hiddenSection.position + new Vector3(hiddenSection.rect.width * 0.5f, 0);
-		float diff = Mathf.Max(maxDistance - minDistance, 1.0f);
 
-		foreach (var layer in layers)
-		{
+            node.transform.position = new Vector3(
+                hiddenMin.position.x + (hiddenMax.position.x - hiddenMin.position.x) * dx,
+                hiddenMin.position.y + (hiddenMax.position.y - hiddenMin.position.y) * dy,
+                0
+            );
 
-			float layerDist = 1.0f - ((layer.Key - minDistance) / (float)(diff));
-			int nodeCount = layer.Value.Count;
-
-			for (int i = 0; i < nodeCount; ++i)
-			{
-				float step = hiddenSection.rect.height / nodeCount;
-
-				NetworkNode node = Instantiate(defaultNode, hiddenSection);
-				NeatNode logicNode = layer.Value[i];
-				
-				RectTransform nodeRect = node.GetComponent<RectTransform>();
-				nodeRect.position = Vector3.Lerp(hiddenStart, hiddenEnd, layerDist) + new Vector3(0, (nodeCount / 2) * step + step * - i);
-
-				// Update visual and cache
-				node.SetVisualisation(logicNode);
-				nodes[node.netNode.ID] = node;
-			}
-		}
+            // Update visual and cache
+            node.SetVisualisation(logicNode);
+            nodes[node.netNode.ID] = node;
+        }
 
 
 
