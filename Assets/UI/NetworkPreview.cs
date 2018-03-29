@@ -247,9 +247,10 @@ public class NetworkPreview : MonoBehaviour
             float outDist = logicNode.FurthestDistanceFromOutput();
             
             int start = input.network.inputCount + input.network.outputCount;
+            float yc = (i % 30) / 30.0f;
 
-            float dx = (inpDist) / (outDist + inpDist);
-            float dy = (i - start) / (float)(input.network.nodes.Count - start);
+            float dx = (inpDist) / (outDist + inpDist) + (yc % 5) / 5.0f;
+            float dy = yc;// (i - start) / (float)(input.network.nodes.Count - start);
 
 
             node.transform.position = new Vector3(
