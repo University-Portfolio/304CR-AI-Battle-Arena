@@ -242,6 +242,7 @@ public class Character : MonoBehaviour
 	public void SetColour(Color colour)
 	{
 		foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
-			renderer.material.color = colour;// .SetColor("_Albedo", colour);
+			if(!renderer.gameObject.name.EndsWith("(Colourless)"))
+				renderer.material.color = colour;// .SetColor("_Albedo", colour);
 	}
 }

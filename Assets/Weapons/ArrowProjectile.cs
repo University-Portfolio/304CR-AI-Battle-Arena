@@ -21,13 +21,15 @@ public class ArrowProjectile : MonoBehaviour
 	/// </summary>
 	private float lifeTimer;
 
-
 	
 	void Update ()
     {
 		// Point arrow model in direction travelling
 		if (inFlight)
-			animatedTransform.forward = body.velocity;
+		{
+			animatedTransform.LookAt(transform.position + body.velocity);
+			animatedTransform.rotation = Quaternion.AngleAxis(-90.0f, animatedTransform.right) * animatedTransform.rotation;
+		}
 		else if (lifeTimer > 3.0f)
 			lifeTimer = 3.0f;
 
@@ -49,6 +51,9 @@ public class ArrowProjectile : MonoBehaviour
         inFlight = true;
 		lifeTimer = 8.0f;
 
+
+		animatedTransform.LookAt(transform.position + body.velocity);
+		animatedTransform.rotation = Quaternion.AngleAxis(-90.0f, animatedTransform.right) * animatedTransform.rotation;
 	}
 
     void OnTriggerEnter(Collider collider)
@@ -65,7 +70,7 @@ public class ArrowProjectile : MonoBehaviour
 				character.OnBeenShot(owner);
 			}
 		}
-
+		
 		Destroy(gameObject);
 	}
 }
