@@ -104,11 +104,11 @@ public class NeuralInputAgent : MonoBehaviour
 		RenderVision();
 
 		// Shoot Cooldown
-		networkInput[ResolutionInputCount + 0] = character.NormalizedShootTime;
+		networkInput[ResolutionInputCount + 0] = character.NormalizedShootTime * 2.0f - 1.0f;
 		// Sheild Cooldown
-		networkInput[ResolutionInputCount + 1] = character.NormalizedShieldReuseTime;
+		networkInput[ResolutionInputCount + 1] = character.NormalizedShieldReuseTime * 2.0f - 1.0f;
 		// Sheild stun
-		networkInput[ResolutionInputCount + 2] = character.NormalizedShieldStunTime;
+		networkInput[ResolutionInputCount + 2] = character.NormalizedShieldStunTime * 2.0f - 1.0f;
 		// Stage Size
 		networkInput[ResolutionInputCount + 3] = (GameMode.Main.stage.currentSize / GameMode.Main.stage.DefaultSize) * 2.0f - 1.0f;
 		// Rotation Sin
