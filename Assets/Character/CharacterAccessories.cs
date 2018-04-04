@@ -57,7 +57,7 @@ public class CharacterAccessories : MonoBehaviour
 		if (age == 0)
 			return;
 
-		int index = System.Math.Min(age / 3, hairAges.Length - 1);
+		int index = System.Math.Min(age / 4, hairAges.Length - 1);
 		Instantiate(hairAges[index], maskSocket);
 	}
 }

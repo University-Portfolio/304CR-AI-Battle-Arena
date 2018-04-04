@@ -17,6 +17,11 @@ public class NeatController
     private Dictionary<Vector2Int, int> innovationIds;
 
 	/// <summary>
+	/// The total runtime for this simulation in seconds
+	/// </summary>
+	public int runTime;
+
+	/// <summary>
 	/// What generation are we currently on
 	/// </summary>
 	public int generationCounter { get; private set; }
@@ -283,6 +288,7 @@ public class NeatController
 
 			writer.WriteElementString("innovationCounter", "" + innovationCounter);
 			writer.WriteElementString("generationCounter", "" + generationCounter);
+			writer.WriteElementString("runTime", "" + runTime);
 
 			// Write genes
 			writer.WriteStartElement("innovations");
@@ -367,7 +373,9 @@ public class NeatController
 			else if (child.Name == "generationCounter")
 				generationCounter = System.Int32.Parse(child.InnerText);
 
-
+			else if (child.Name == "runTime")
+				runTime = System.Int32.Parse(child.InnerText);
+			
 			// Read genes
 			else if (child.Name == "Generation")
 			{

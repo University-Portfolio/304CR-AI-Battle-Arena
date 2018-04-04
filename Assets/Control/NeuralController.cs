@@ -28,6 +28,11 @@ public class NeuralController : MonoBehaviour
 	/// </summary>
 	public float winnerWeight = 5.0f;
 
+	/// <summary>
+	/// How long this has been running (In seconds)
+	/// </summary>
+	public float runTime { get; private set; }
+
 
 	void Start ()
 	{
@@ -42,11 +47,13 @@ public class NeuralController : MonoBehaviour
 		}
 		
 		neatController = new NeatController("AiArena");
-		neatController.breedRetention = 0.1f;
-		neatController.breedConsideration = 0.4f;
+		neatController.breedRetention = 0.15f;
+		neatController.breedConsideration = 0.5f;
 		neatController.speciesDeltaThreshold = 2.5f;
 		NeatNetwork[] population = neatController.GenerateBasePopulation(GameMode.Main.CharacterCount, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
 
+		// Use controller's runtime to start from
+		runTime = neatController.runTime;
 
 		GameMode.Main.ResetGame();
 		CreateAgentsFromNetworks(population);
@@ -55,6 +62,9 @@ public class NeuralController : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		runTime += Time.deltaTime;
+		neatController.runTime = (int)runTime;
+
 		// Start the next generation of nets
 		if (GameMode.Main.IsGameFinished)
 		{

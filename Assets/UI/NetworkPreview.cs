@@ -27,7 +27,9 @@ public class NetworkPreview : MonoBehaviour
 	private Text roundText;
 	[SerializeField]
 	private Text fitnessText;
-    [SerializeField]
+	[SerializeField]
+	private Text timeText;
+	[SerializeField]
     private Text generationText;
     [SerializeField]
     private Text killsText;
@@ -110,14 +112,32 @@ public class NetworkPreview : MonoBehaviour
         }
 		else
 		{
-			roundText.text = "N/A";
-			fitnessText.text = "N/A";
-			generationText.text = "N/A";
-            killsText.text = "N/A";
-            ageText.text = "N/A";
-            speciesText.text = "N/A";
+			roundText.text = "..";
+			fitnessText.text = "..";
+			generationText.text = "..";
+            killsText.text = "..";
+            ageText.text = "..";
+            speciesText.text = "..";
             speciesText.color = Color.white;
         }
+
+		NeuralController controller = FindObjectOfType<NeuralController>();
+		if (controller != null)
+		{
+			// Format time
+			int seconds = (int)controller.runTime;
+
+			int minutes = seconds / 60;
+			seconds %= 60;
+
+			int hours = minutes / 60;
+			minutes %= 60;
+
+			timeText.text = (hours < 10 ? "0" + hours : "" + hours) + ":" + (minutes < 10 ? "0" + minutes : "" + minutes) + ":" + (seconds < 10 ? "0" + seconds : "" + seconds);
+
+		}
+		else
+			timeText.text = "..";
 	}
 
 	/// <summary>

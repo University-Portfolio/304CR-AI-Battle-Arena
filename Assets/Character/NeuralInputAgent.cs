@@ -75,7 +75,7 @@ public class NeuralInputAgent : MonoBehaviour
 		networkInput = new float[InputCount];
 	}
 	
-    void Update ()
+    void FixedUpdate ()
     {
 		if (network == null)
 			return;
@@ -91,7 +91,7 @@ public class NeuralInputAgent : MonoBehaviour
 			return;
 		
 		// Update stats
-		survialTime += Time.deltaTime;
+		survialTime += Time.fixedDeltaTime;
 		killCount = character.killCount;
 
 
