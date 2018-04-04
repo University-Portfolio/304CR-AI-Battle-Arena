@@ -75,8 +75,11 @@ public class NeuralController : MonoBehaviour
 			NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
 			agent.AssignNetwork(population[i]);
 
-			if (population[i].age != 0)
+			if (agent.network.age != 0)
+			{
 				oldAgents.Add(agent);
+				agent.GetComponent<CharacterAccessories>().GrowHair(agent.network.age);
+			}
 		}
 
 		// Sort surviving agents so highest fitness is firsts
@@ -96,8 +99,8 @@ public class NeuralController : MonoBehaviour
 				oldAgents[c].GetComponent<CharacterAccessories>().GiveCrown(c);
 
 			// Give dunce hat (Don't double up dunce and crowns)
-			if (d < oldAgents.Count && d > 2)
-				oldAgents[c].GetComponent<CharacterAccessories>().GiveDunce(d);
+			//if (d < oldAgents.Count && d > 2)
+			//	oldAgents[c].GetComponent<CharacterAccessories>().GiveDunce(d);
 		}
 	}
 }

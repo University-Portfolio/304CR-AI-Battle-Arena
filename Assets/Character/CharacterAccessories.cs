@@ -16,6 +16,8 @@ public class CharacterAccessories : MonoBehaviour
 	public GameObject hatDunceFirst;
 	public GameObject hatDunceSecond;
 	public GameObject hatDunceThird;
+	
+	public GameObject[] hairAges;
 
 
 	/// <summary>
@@ -44,5 +46,18 @@ public class CharacterAccessories : MonoBehaviour
 			Instantiate(hatDunceSecond, hatSocket);
 		else if (place == 2)
 			Instantiate(hatDunceThird, hatSocket);
+	}
+
+	/// <summary>
+	/// Grow appropriate hair based on an age
+	/// </summary>
+	/// <param name="age">The current age of this agent</param>
+	public void GrowHair(int age)
+	{
+		if (age == 0)
+			return;
+
+		int index = System.Math.Min(age / 3, hairAges.Length - 1);
+		Instantiate(hairAges[index], maskSocket);
 	}
 }
