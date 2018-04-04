@@ -1496,12 +1496,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultProjectile: {fileID: 114269182745611212, guid: 98bdf9267ef02f145992101ae2f8c610,
     type: 2}
+  defaultShield: {fileID: 114060785871235542, guid: e5dbe52af6abf414f96c561115fdc608,
+    type: 2}
   gravityVector: {x: 0, y: -20, z: 0}
   dragFactor: 10
   moveSpeed: 60
   turnSpeed: 7
   shootDuration: 0.6
-  roundWinCount: 0
+  shieldStun: 1
+  shieldDuration: 4
 --- !u!114 &114766526707172106
 MonoBehaviour:
   m_ObjectHideFlags: 1

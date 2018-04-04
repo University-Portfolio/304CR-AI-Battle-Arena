@@ -7,11 +7,17 @@ public class Character : MonoBehaviour
 {
     public CharacterController characterController { get; private set; }
 
-    [SerializeField]
+	[Header("Objects")]
+	[SerializeField]
     private ArrowProjectile defaultProjectile;
 
-	public ArrowProjectile currentProjectile { get; private set; }
+	[SerializeField]
+	private ArrowShield defaultShield;
 
+	public ArrowProjectile currentProjectile { get; private set; }
+	public ArrowShield currentShield { get; private set; }
+
+	[Header("Movement")]
 	[SerializeField]
     private Vector3 gravityVector = Vector3.down;
     [SerializeField]
@@ -20,14 +26,20 @@ public class Character : MonoBehaviour
     private float moveSpeed = 1.0f;
     [SerializeField]
     private float turnSpeed = 1.0f;
+
+	[Header("Settings")]
 	[SerializeField]
 	public float shootDuration = 1.0f;
+	[SerializeField]
+	public float shieldStun = 0.5f;
+	[SerializeField]
+	public float shieldDuration = 3.0f;
 
 
-    /// <summary>
-    /// The 2D movement velocity of this object
-    /// </summary>
-    public Vector2 velocity { get; private set; }
+	/// <summary>
+	/// The 2D movement velocity of this object
+	/// </summary>
+	public Vector2 velocity { get; private set; }
     /// <summary>
     /// The actual 3D velocity of this object
     /// </summary>
@@ -53,16 +65,32 @@ public class Character : MonoBehaviour
     private float deltaAngle;
 
 
+	public enum Action
+	{
+		None,
+		Shooting,
+		Shielding
+	}
+	public Action currentAction { get; private set; }
+
 	/// <summary>
-	/// The time left until the character is no longer shooting
+	/// The time left until the character is no doing the action
 	/// </summary>
-	private float shootTimer = 0;
+	private float actionTimer = 0;
 	/// <summary>
 	/// The time left until the arrow fires
 	/// </summary>
 	private float arrowTimer = 0;
-	public bool IsShooting { get { return shootTimer != 0; } }
-	public float NormalizedShootTime { get { return shootTimer / shootDuration; } }
+
+	/// <summary>
+	/// The time left until the sheild can be used again
+	/// </summary>
+	private float shieldTimer = 0;
+
+
+	public float NormalizedShootTime { get { return currentAction == Action.Shooting ? actionTimer / shootDuration : 0.0f; } }
+	public float NormalizedShieldStunTime { get { return currentAction == Action.Shielding ? actionTimer / shieldStun : 0.0f; } }
+	public float NormalizedShieldReuseTime { get { return shieldTimer / shieldDuration; } }
 
 
 	/// <summary>
@@ -73,6 +101,8 @@ public class Character : MonoBehaviour
 	public bool IsDead { get { return !isAlive; } }
 
 	public int killCount { get; private set; }
+	public int blockCount { get; private set; }
+	[System.NonSerialized]
 	public int roundWinCount;
 
 
@@ -81,6 +111,13 @@ public class Character : MonoBehaviour
         characterController = GetComponent<CharacterController>();
 		isAlive = true;
 		roundWinCount = 0;
+
+		// Create shield
+		if (currentShield == null)
+		{
+			currentShield = Instantiate(defaultShield);
+			currentShield.owner = this;
+		}
 	}
 
     void Update()
@@ -127,28 +164,42 @@ public class Character : MonoBehaviour
         }
 
 		// Count down shoot timer
-		if (shootTimer != 0)
+		if (actionTimer != 0)
 		{
-			// Fire arrow
-			if (arrowTimer != 0)
+			if (currentAction == Action.Shooting)
 			{
-				arrowTimer -= Time.deltaTime;
-				if (arrowTimer < 0)
+				// Fire arrow
+				if (arrowTimer != 0)
 				{
-					// Remove current projectile
-					if (currentProjectile != null)
-						Destroy(currentProjectile.gameObject);
+					arrowTimer -= Time.deltaTime;
+					if (arrowTimer < 0)
+					{
+						// Remove current projectile
+						if (currentProjectile != null)
+							Destroy(currentProjectile.gameObject);
 
-					currentProjectile = Instantiate(defaultProjectile.gameObject).GetComponent<ArrowProjectile>();
-					currentProjectile.Fire(this);
-					arrowTimer = 0;
+						currentProjectile = Instantiate(defaultProjectile.gameObject).GetComponent<ArrowProjectile>();
+						currentProjectile.Fire(this);
+						arrowTimer = 0;
+					}
 				}
 			}
 
-			// Wait for shooting to be finished
-			shootTimer -= Time.deltaTime;
-			if (shootTimer < 0)
-				shootTimer = 0;
+			// Wait for action to be finished
+			actionTimer -= Time.deltaTime;
+			if (actionTimer < 0.0f)
+			{
+				actionTimer = 0.0f;
+				currentAction = Action.None;
+			}
+		}
+
+		// Count down to re-use shield
+		if (shieldTimer > 0.0f)
+		{
+			shieldTimer -= Time.deltaTime;
+			if (shieldTimer < 0.0f)
+				shieldTimer = 0.0f;
 		}
 
 		// Kill this character
@@ -163,7 +214,7 @@ public class Character : MonoBehaviour
     public void Move(float amount)
     {
 		// Cannot move while shooting
-		if(!IsShooting && isAlive)
+		if(currentAction == Action.None && isAlive)
 			deltaMovement += amount * moveSpeed;
     }
 
@@ -183,14 +234,30 @@ public class Character : MonoBehaviour
     /// <returns>If arrow successfully fires</returns>
     public bool Fire()
     {
-		if (IsShooting || IsDead)
+		if (currentAction != Action.None || IsDead)
 			return false;
 
 		arrowTimer = shootDuration * 0.8f;
-		shootTimer = shootDuration;
-        return true;
+		actionTimer = shootDuration;
+		currentAction = Action.Shooting;
+		return true;
     }
 
+	/// <summary>
+	/// Attempt to deploy shield
+	/// </summary>
+	/// <returns>If shield successfully deploys</returns>
+	public bool Block()
+	{
+		if (currentAction != Action.None || IsDead || shieldTimer > 0.0f)
+			return false;
+
+		currentShield.Deploy();
+		actionTimer = shieldStun;
+		shieldTimer = shieldDuration;
+		currentAction = Action.Shielding;
+		return true;
+	}
 
 	/// <summary>
 	/// Called when this character has successfully shot another character
@@ -208,6 +275,13 @@ public class Character : MonoBehaviour
 	{
 		OnDead();
 	}
+	/// <summary>
+	/// Called when this character has successfully blocked a shot
+	/// </summary>
+	public void OnGoodBlock(ArrowProjectile arrow)
+	{
+		blockCount++;
+	}
 
 
 	/// <summary>
@@ -218,6 +292,7 @@ public class Character : MonoBehaviour
 		if (!isAlive)
 			return;
 
+		currentShield.gameObject.SetActive(false);
 		characterController.enabled = false;
 		isAlive = false;
 		deadClearTimer = 3.0f;
@@ -230,7 +305,9 @@ public class Character : MonoBehaviour
 		gameObject.SetActive(true);
 		isAlive = true;
 		characterController.enabled = true;
-		shootTimer = 0.0f;
+
+		actionTimer = 0.0f;
+		currentAction = Action.None;
 		arrowTimer = 0.0f;
 	}
 
@@ -241,8 +318,21 @@ public class Character : MonoBehaviour
 	/// <param name="colour"></param>
 	public void SetColour(Color colour)
 	{
+		// Colour model
 		foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
-			if(!renderer.gameObject.name.EndsWith("(Colourless)"))
-				renderer.material.color = colour;// .SetColor("_Albedo", colour);
+			if (!renderer.gameObject.name.EndsWith("(Colourless)"))
+				renderer.material.color = colour;
+
+
+		// Create shield (If doesn't already exist)
+		if (currentShield == null)
+		{
+			currentShield = Instantiate(defaultShield);
+			currentShield.owner = this;
+		}
+
+		// Colour sheild
+		if (!currentShield.name.EndsWith("(Colourless)"))
+			currentShield.GetComponent<Renderer>().material.color = colour;
 	}
 }

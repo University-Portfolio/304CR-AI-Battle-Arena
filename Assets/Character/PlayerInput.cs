@@ -26,7 +26,9 @@ public class PlayerInput : MonoBehaviour
         if (Input.GetKey(KeyCode.D))
             character.Turn(1);
 
-        if (Input.GetKeyDown(KeyCode.Space))
-            character.Fire();
-    }
+		if (Input.GetKeyDown(KeyCode.F))
+			character.Fire();
+		if (Input.GetKeyDown(KeyCode.G))
+			character.Block();
+	}
 }

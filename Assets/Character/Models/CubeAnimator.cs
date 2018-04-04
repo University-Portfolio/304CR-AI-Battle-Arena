@@ -40,7 +40,7 @@ public class CubeAnimator : MonoBehaviour
         animator.SetFloat(tag_AbsSpeed, speed);
         animator.SetFloat(tag_Speed, speed * dir);
 
-        animator.SetBool(tag_IsFiring, character.IsShooting);
+        animator.SetBool(tag_IsFiring, character.currentAction == Character.Action.Shooting);
 		animator.SetFloat(tag_FireDuration, 1.0f / character.shootDuration);
 
 		animator.SetBool(tag_IsDead, character.IsDead);

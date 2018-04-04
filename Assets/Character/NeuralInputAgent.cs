@@ -11,11 +11,12 @@ public struct NeuralPixel
     public bool containsStage;
     public bool containsCharacter;
     public bool containsArrow;
+	public bool containsShield;
 
 	///
 	/// This data should be passed into the network as 2 floats
-	/// stage and arrow will share a float [-1: stage 1: arrow]
-	/// character has a float all to it's self
+	/// stage and character will share a float [-1: stage 1: character]
+	/// arrow and shield will share a float [-1: shield 1: arrow]
 	///
 }
 
@@ -36,11 +37,11 @@ public class NeuralInputAgent : MonoBehaviour
 	/// <summary>
 	/// The total number of inputs this agent requires
 	/// </summary>
-	public static int InputCount { get { return ResolutionInputCount + 6; } }
+	public static int InputCount { get { return ResolutionInputCount + 9; } }
 	/// <summary>
 	/// The total number of outputs this agent requires
 	/// </summary>
-	public static int OutputCount { get { return 3; } }
+	public static int OutputCount { get { return 4; } }
 
 
 	public Character character { get; private set; }
@@ -63,7 +64,11 @@ public class NeuralInputAgent : MonoBehaviour
 	/// <summary>
 	/// How many kills this agent has gotten
 	/// </summary>
-	public int killCount { get; private set; }
+	public int killCount { get { return character ? character.killCount : 0; } }
+	/// <summary>
+	/// How many blocks this agent has gotten
+	/// </summary>
+	public int blockCount { get { return character ? character.blockCount : 0; } }
 
 
 	void Start ()
@@ -82,8 +87,9 @@ public class NeuralInputAgent : MonoBehaviour
 
 		// Set network fitness from survival and kill count
 		network.fitness = 
-			survialTime * NeuralController.main.survialWeight + 
-			killCount * NeuralController.main.killWeight + 
+			survialTime				* NeuralController.main.survialWeight + 
+			killCount				* NeuralController.main.killWeight +
+			blockCount				* NeuralController.main.blockWeight +
 			character.roundWinCount * NeuralController.main.winnerWeight;
 
 		// Don't run network for dead agents
@@ -92,35 +98,43 @@ public class NeuralInputAgent : MonoBehaviour
 		
 		// Update stats
 		survialTime += Time.fixedDeltaTime;
-		killCount = character.killCount;
 
 
 		// Update inputs
 		RenderVision();
-		
-		// 0 - Shoot Cooldown
-        networkInput[ResolutionInputCount + 0] = character.NormalizedShootTime;
-		// 1 - Stage Size
-		networkInput[ResolutionInputCount + 1] = (GameMode.Main.stage.currentSize / GameMode.Main.stage.DefaultSize) * 2.0f - 1.0f;
-		// 2 - Rotation Sin
-		networkInput[ResolutionInputCount + 2] = Mathf.Cos(character.directionAngle);
-		// 3 - Rotation Cos
-		networkInput[ResolutionInputCount + 3] = Mathf.Sin(character.directionAngle);
-		// 4 - Alive populations
-		networkInput[ResolutionInputCount + 4] = ((float)GameMode.Main.aliveCount / (float)GameMode.Main.CharacterCount) * 2.0f - 1.0f;
-		// 5 - Bias input node
-		networkInput[ResolutionInputCount + 5] = 1.0f;
+
+		// Shoot Cooldown
+		networkInput[ResolutionInputCount + 0] = character.NormalizedShootTime;
+		// Sheild Cooldown
+		networkInput[ResolutionInputCount + 1] = character.NormalizedShieldReuseTime;
+		// Sheild stun
+		networkInput[ResolutionInputCount + 2] = character.NormalizedShieldStunTime;
+		// Stage Size
+		networkInput[ResolutionInputCount + 3] = (GameMode.Main.stage.currentSize / GameMode.Main.stage.DefaultSize) * 2.0f - 1.0f;
+		// Rotation Sin
+		networkInput[ResolutionInputCount + 4] = Mathf.Cos(character.directionAngle);
+		// Rotation Cos
+		networkInput[ResolutionInputCount + 5] = Mathf.Sin(character.directionAngle);
+		// Alive populations
+		networkInput[ResolutionInputCount + 6] = ((float)GameMode.Main.aliveCount / (float)GameMode.Main.CharacterCount) * 2.0f - 1.0f;
+		// Bias input node
+		networkInput[ResolutionInputCount + 7] = 1.0f;
+		// Bias input node
+		networkInput[ResolutionInputCount + 8] = -1.0f;
 
 		// Run network
-        networkOutput = network.GenerateOutput(networkInput);
+		networkOutput = network.GenerateOutput(networkInput);
 
 		// Output 0: Move
 		character.Move(networkOutput[0]);
 		// Output 1: Turn
 		character.Turn(networkOutput[1]);
 		// Output 2: Shoot 
-		if(networkOutput[2] >= 0.5f)
+		if (networkOutput[2] >= 0.5f)
 			character.Fire();
+		// Output 3: Block 
+		if (networkOutput[3] >= 0.5f)
+			character.Block();
 	}
 
 	public void AssignNetwork(NeatNetwork network)
@@ -203,6 +217,15 @@ public class NeuralInputAgent : MonoBehaviour
 				if (pos.x >= 0 && pos.x < ViewResolution && pos.y >= 0 && pos.y < ViewResolution)
 					display[pos.x, pos.y].containsArrow = true;
 			}
+
+			// Draw sheild
+			if (other.currentShield != null && other.currentShield.IsActive)
+			{
+				pos = WorldToRender(other.currentShield.transform.position);
+
+				if (pos.x >= 0 && pos.x < ViewResolution && pos.y >= 0 && pos.y < ViewResolution)
+					display[pos.x, pos.y].containsShield = true;
+			}
 		}
 
 
@@ -210,12 +233,12 @@ public class NeuralInputAgent : MonoBehaviour
 		for (int x = 0; x < ViewResolution; ++x)
 			for (int y = 0; y < ViewResolution; ++y)
 			{
-				int stageArrowIndex = x + y * ViewResolution;
-				int characterIndex = ViewResolution * ViewResolution + x + y * ViewResolution;
+				int arrowShieldIndex = x + y * ViewResolution;
+				int characterStageIndex = ViewResolution * ViewResolution + x + y * ViewResolution;
 				NeuralPixel pixel = display[x, y];
 
-				networkInput[stageArrowIndex] = pixel.containsArrow ? 1.0f : pixel.containsStage ? -1.0f : 0.0f;
-				networkInput[characterIndex] = pixel.containsCharacter ? 1.0f : 0.0f;
+				networkInput[arrowShieldIndex] = pixel.containsArrow ? 1.0f : pixel.containsShield ? -1.0f : 0.0f;
+				networkInput[characterStageIndex] = pixel.containsCharacter ? 1.0f : pixel.containsStage ? -1.0f : 0.0f;
 			}
 	}
 

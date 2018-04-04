@@ -24,6 +24,10 @@ public class NeuralController : MonoBehaviour
 	/// </summary>
 	public float killWeight = 15.0f;
 	/// <summary>
+	/// Weight for arrow blocks on network fitness
+	/// </summary>
+	public float blockWeight = 20.0f;
+	/// <summary>
 	/// Weight for agent winning a round on network fitness
 	/// </summary>
 	public float winnerWeight = 5.0f;

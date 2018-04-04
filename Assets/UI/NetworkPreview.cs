@@ -31,9 +31,11 @@ public class NetworkPreview : MonoBehaviour
 	private Text timeText;
 	[SerializeField]
     private Text generationText;
-    [SerializeField]
-    private Text killsText;
-    [SerializeField]
+	[SerializeField]
+	private Text killsText;
+	[SerializeField]
+	private Text blocksText;
+	[SerializeField]
     private Text ageText;
     [SerializeField]
     private Text speciesText;
@@ -104,7 +106,8 @@ public class NetworkPreview : MonoBehaviour
 			fitnessText.text = "" + currentTarget.network.fitness;
 			generationText.text = "" + currentTarget.network.controller.generationCounter;
             killsText.text = "" + currentTarget.killCount;
-            ageText.text = "" + currentTarget.network.age;
+			blocksText.text = "" + currentTarget.blockCount;
+			ageText.text = "" + currentTarget.network.age;
 
             speciesText.text = currentTarget.network.assignedSpecies.guid.ToString();
             speciesText.color = currentTarget.network.assignedSpecies.colour;
@@ -112,12 +115,13 @@ public class NetworkPreview : MonoBehaviour
         }
 		else
 		{
-			roundText.text = "..";
-			fitnessText.text = "..";
-			generationText.text = "..";
-            killsText.text = "..";
-            ageText.text = "..";
-            speciesText.text = "..";
+			roundText.text = "?";
+			fitnessText.text = "-";
+			generationText.text = "?";
+            killsText.text = "-";
+			blocksText.text = "-";
+			ageText.text = "-";
+            speciesText.text = "-";
             speciesText.color = Color.white;
         }
 
@@ -348,7 +352,9 @@ public class NetworkPreview : MonoBehaviour
 			for (int x = 0; x < NeuralInputAgent.ViewResolution; ++x)
 				for (int y = 0; y < NeuralInputAgent.ViewResolution; ++y)
 				{
-					if (currentTarget.display[x, y].containsArrow)
+					if (currentTarget.display[x, y].containsShield)
+						displayTexture.SetPixel(x, y, Color.yellow);
+					else if (currentTarget.display[x, y].containsArrow)
 						displayTexture.SetPixel(x, y, Color.red);
 					else if (currentTarget.display[x, y].containsCharacter)
 						displayTexture.SetPixel(x, y, Color.black);
