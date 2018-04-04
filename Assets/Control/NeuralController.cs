@@ -49,11 +49,7 @@ public class NeuralController : MonoBehaviour
 
 
 		GameMode.Main.ResetGame();
-		for (int i = 0; i < GameMode.Main.CharacterCount; ++i)
-		{
-			NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
-			agent.AssignNetwork(population[i]);
-		}
+		CreateAgentsFromNetworks(population);
 	}
 	
 	// Update is called once per frame
@@ -66,11 +62,42 @@ public class NeuralController : MonoBehaviour
 			NeatNetwork[] population = neatController.BreedNextGeneration();
 
 			GameMode.Main.ResetGame();
-			for (int i = 0; i < GameMode.Main.CharacterCount; ++i)
-			{
-				NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
-				agent.AssignNetwork(population[i]);
-			}
+			CreateAgentsFromNetworks(population);
+		}
+	}
+
+	private void CreateAgentsFromNetworks(NeatNetwork[] population)
+	{
+		List<NeuralInputAgent> oldAgents = new List<NeuralInputAgent>();
+
+		for (int i = 0; i < GameMode.Main.CharacterCount; ++i)
+		{
+			NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
+			agent.AssignNetwork(population[i]);
+
+			if (population[i].age != 0)
+				oldAgents.Add(agent);
+		}
+
+		// Sort surviving agents so highest fitness is firsts
+		oldAgents.Sort((a, b) =>
+			(a.network.previousFitness == b.network.previousFitness) ? 0 :
+			(a.network.previousFitness > b.network.previousFitness) ? -1 : 1
+		);
+
+		// Give hats to top and bottom 3
+		for (int i = 0; i < 3; ++i)
+		{
+			int c = i;
+			int d = oldAgents.Count - 1 - i;
+
+			// Give crown
+			if (c < oldAgents.Count)
+				oldAgents[c].GetComponent<CharacterAccessories>().GiveCrown(c);
+
+			// Give dunce hat (Don't double up dunce and crowns)
+			if (d < oldAgents.Count && d > 2)
+				oldAgents[c].GetComponent<CharacterAccessories>().GiveDunce(d);
 		}
 	}
 }
