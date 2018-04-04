@@ -176,6 +176,7 @@ public class NetworkPreview : MonoBehaviour
 				// Put extra nodes next to the display
                 if(i >= NeuralInputAgent.ResolutionInputCount)
 				{
+					n = i - NeuralInputAgent.ResolutionInputCount;
 					RectTransform nodeRect = node.GetComponent<RectTransform>();
 					Vector3 size = display.rectTransform.sizeDelta * (4.0f / 3.0f);
 					nodeRect.position = display.rectTransform.position + new Vector3(size.x + step.x, (-n - 0.25f) * step.y) + new Vector3(nodeRect.sizeDelta.x * 0.5f, -nodeRect.sizeDelta.y * 0.5f);

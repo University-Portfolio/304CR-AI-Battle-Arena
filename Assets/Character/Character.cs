@@ -63,8 +63,12 @@ public class Character : MonoBehaviour
 	private float arrowTimer = 0;
 	public bool IsShooting { get { return shootTimer != 0; } }
 	public float NormalizedShootTime { get { return shootTimer / shootDuration; } }
-	
 
+
+	/// <summary>
+	/// Time left before clearing the body
+	/// </summary>
+	private float deadClearTimer = 0;
 	public bool isAlive { get; private set; }
 	public bool IsDead { get { return !isAlive; } }
 
@@ -81,8 +85,20 @@ public class Character : MonoBehaviour
 
     void Update()
     {
-        if (IsDead)
-            return;
+		if (IsDead)
+		{
+			// Make body disapear 
+			if (deadClearTimer > 0.0f)
+			{
+				deadClearTimer -= Time.deltaTime;
+				if (deadClearTimer <= 0.0f)
+				{
+					deadClearTimer = 0.0f;
+					gameObject.SetActive(false);
+				}
+			}
+			return;
+		}
 
         // Turning
         {
@@ -137,10 +153,7 @@ public class Character : MonoBehaviour
 
 		// Kill this character
 		if (transform.position.y < -30.0f)
-		{
-			isAlive = false;
-			characterController.enabled = false;
-		}
+			OnDead();
 	}
 
     /// <summary>
@@ -187,27 +200,40 @@ public class Character : MonoBehaviour
 	{
 		killCount++;
 	}
-	
 	/// <summary>
 	/// Called when this character has been shot by another character
 	/// </summary>
 	/// <param name="attacker">The character who shot this</param>
 	public void OnBeenShot(Character attacker)
 	{
-		characterController.enabled = false;
-		isAlive = false;
+		OnDead();
 	}
 
+
+	/// <summary>
+	/// Callback for when this character dies
+	/// </summary>
+	public void OnDead()
+	{
+		if (!isAlive)
+			return;
+
+		characterController.enabled = false;
+		isAlive = false;
+		deadClearTimer = 3.0f;
+	}
 	/// <summary>
 	/// Called when this character respawns
 	/// </summary>
 	public void Respawn()
 	{
+		gameObject.SetActive(true);
 		isAlive = true;
 		characterController.enabled = true;
 		shootTimer = 0.0f;
 		arrowTimer = 0.0f;
 	}
+
 
 	/// <summary>
 	/// Set the colour for this character

@@ -22,6 +22,7 @@ public class GameMode : MonoBehaviour
 	[SerializeField]
 	private int rounds = 5;
 	public int currentRound { get; private set; }
+	public int aliveCount { get; private set; }
 	private float nextRoundCooldown;
 
 	public bool IsGameFinished { get { return currentRound > rounds; } }
@@ -80,13 +81,14 @@ public class GameMode : MonoBehaviour
 		foreach (Character character in characters)
 			if (character.isAlive)
 				remaining.Add(character);
-		
+		aliveCount = remaining.Count;
+
 
 		// Reset when only 1 character exists
-		if (remaining.Count <= 1)
+		if (aliveCount <= 1)
 		{
 			// This is the winner
-			if (remaining.Count > 0)
+			if (aliveCount > 0)
 				remaining[0].roundWinCount++;
 
 			nextRoundCooldown = 1.0f;

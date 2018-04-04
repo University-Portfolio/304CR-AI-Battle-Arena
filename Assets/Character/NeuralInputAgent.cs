@@ -36,7 +36,7 @@ public class NeuralInputAgent : MonoBehaviour
 	/// <summary>
 	/// The total number of inputs this agent requires
 	/// </summary>
-	public static int InputCount { get { return ResolutionInputCount + 3; } }
+	public static int InputCount { get { return ResolutionInputCount + 6; } }
 	/// <summary>
 	/// The total number of outputs this agent requires
 	/// </summary>
@@ -86,25 +86,38 @@ public class NeuralInputAgent : MonoBehaviour
 			killCount * NeuralController.main.killWeight + 
 			character.roundWinCount * NeuralController.main.winnerWeight;
 
+		// Don't run network for dead agents
 		if (character.IsDead)
 			return;
 		
+		// Update stats
 		survialTime += Time.deltaTime;
 		killCount = character.killCount;
 
-		RenderVision();
-        networkInput[ResolutionInputCount + 0] = character.NormalizedShootTime;
-        networkInput[ResolutionInputCount + 1] = 1.0f; // Bias input  
-        networkInput[ResolutionInputCount + 2] = 1.0f; // Bias input TODO
-        networkOutput = network.GenerateOutput(networkInput);
 
+		// Update inputs
+		RenderVision();
+		
+		// 0 - Shoot Cooldown
+        networkInput[ResolutionInputCount + 0] = character.NormalizedShootTime;
+		// 1 - Stage Size
+		networkInput[ResolutionInputCount + 1] = (GameMode.Main.stage.currentSize / GameMode.Main.stage.DefaultSize) * 2.0f - 1.0f;
+		// 2 - Rotation Sin
+		networkInput[ResolutionInputCount + 2] = Mathf.Cos(character.directionAngle);
+		// 3 - Rotation Cos
+		networkInput[ResolutionInputCount + 3] = Mathf.Sin(character.directionAngle);
+		// 4 - Alive populations
+		networkInput[ResolutionInputCount + 4] = ((float)GameMode.Main.aliveCount / (float)GameMode.Main.CharacterCount) * 2.0f - 1.0f;
+		// 5 - Bias input node
+		networkInput[ResolutionInputCount + 5] = 1.0f;
+
+		// Run network
+        networkOutput = network.GenerateOutput(networkInput);
 
 		// Output 0: Move
 		character.Move(networkOutput[0]);
-
 		// Output 1: Turn
 		character.Turn(networkOutput[1]);
-
 		// Output 2: Shoot 
 		if(networkOutput[2] >= 0.5f)
 			character.Fire();
@@ -126,17 +139,18 @@ public class NeuralInputAgent : MonoBehaviour
 #if UNITY_EDITOR
 	void OnDrawGizmosSelected()
 	{
-		// DEBUG Draw view area
+		// DEBUG Draw view areas
 		Vector3 a = transform.position + (transform.forward * (ViewResolution / 2) + transform.right * (ViewResolution / 2)) * displayScale;
 		Vector3 b = transform.position + (transform.forward * (ViewResolution / 2) + transform.right * (-ViewResolution / 2)) * displayScale;
 		Vector3 c = transform.position + (transform.forward * (-ViewResolution / 2) + transform.right * (ViewResolution / 2)) * displayScale;
 		Vector3 d = transform.position + (transform.forward * (-ViewResolution / 2) + transform.right * (-ViewResolution / 2)) * displayScale;
 
-		Debug.DrawLine(a, b, Color.red, 0.0f);
-		Debug.DrawLine(c, d, Color.red, 0.0f);
+		Gizmos.color = Color.red;
+		Gizmos.DrawLine(a, b);
+		Gizmos.DrawLine(c, d);
 
-		Debug.DrawLine(a, c, Color.red, 0.0f);
-		Debug.DrawLine(b, d, Color.red, 0.0f);
+		Gizmos.DrawLine(a, c);
+		Gizmos.DrawLine(b, d);
 	}
 #endif
 
