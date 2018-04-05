@@ -120,7 +120,16 @@ public class Character : MonoBehaviour
 		}
 	}
 
-    void Update()
+	void OnDestroy()
+	{
+		if (currentShield != null)
+			Destroy(currentShield.gameObject);
+
+		if (currentProjectile != null)
+			Destroy(currentProjectile.gameObject);
+	}
+
+	void Update()
     {
 		if (IsDead)
 		{

@@ -145,6 +145,21 @@ public class NetworkPreview : MonoBehaviour
 	}
 
 	/// <summary>
+	/// Layers used for drawing hidden nodes
+	/// </summary>
+	class NodeLayer
+	{
+		public Vector2Int id;
+		public List<NeatNode> nodes;
+
+		public NodeLayer(Vector2Int id)
+		{
+			this.id = id;
+			nodes = new List<NeatNode>();
+		}
+	}
+
+	/// <summary>
 	/// Update this visualisation
 	/// </summary>
 	/// <param name="node">The node for which this is a visualisation of</param>
@@ -261,8 +276,60 @@ public class NetworkPreview : MonoBehaviour
 
 
 
-        // Spawn hidden nodes
-        // Place each node at the average midpoint 
+		// Spawn hidden nodes
+		// Place in layers
+		Dictionary<Vector2Int, NodeLayer> nodeDistances = new Dictionary<Vector2Int, NodeLayer>();
+		
+		for (int i = input.network.inputCount + input.network.outputCount; i < input.network.nodes.Count; ++i)
+		{
+			NeatNode logicNode = input.network.nodes[i];
+			Vector2Int id = new Vector2Int(logicNode.FurthestDistanceFromInput(), logicNode.FurthestDistanceFromOutput());
+
+			if (!nodeDistances.ContainsKey(id))
+				nodeDistances.Add(id, new NodeLayer(id));
+
+			nodeDistances[id].nodes.Add(logicNode);
+		}
+
+		List<NodeLayer> layers = new List<NodeLayer>(nodeDistances.Values);
+		layers.Sort((a, b) =>
+			a.id.x < b.id.x ? - 1 :
+			a.id.x == b.id.x ? (a.id.x < b.id.x ? -1 : 1) : 0
+		);
+
+		// Place nodes as layers
+		for (int i = 0; i < layers.Count; ++i)
+		{
+			float dx = i / (float)layers.Count;
+
+			// Sort nodes
+			layers[i].nodes.Sort((a, b) => a.ID.CompareTo(a.ID));
+
+			int nodeCount = layers[i].nodes.Count;
+			float yoffset = (1 / (float)nodeCount) * 0.5f;
+
+			// Place nodes centred 
+			for (int n = 0; n < nodeCount; ++n)
+			{
+				float dy = n / (float)nodeCount;
+				
+				NeatNode logicNode = layers[i].nodes[n];
+				NetworkNode node = Instantiate(defaultNode, hiddenSection);
+				
+				node.transform.position = new Vector3(
+					Mathf.Lerp(hiddenMin.position.x, hiddenMax.position.x, dx),
+					Mathf.Lerp(hiddenMin.position.y, hiddenMax.position.y, dy + yoffset),
+					0.0f
+				);
+
+				// Update visual and cache
+				node.SetVisualisation(logicNode);
+				nodes[node.netNode.ID] = node;
+			}
+		}
+
+        /*
+		// Place each node at the average midpoint 
         for (int i = input.network.inputCount + input.network.outputCount; i < input.network.nodes.Count; ++i)
         {
             NeatNode logicNode = input.network.nodes[i];
@@ -271,7 +338,6 @@ public class NetworkPreview : MonoBehaviour
             float inpDist = logicNode.FurthestDistanceFromInput();
             float outDist = logicNode.FurthestDistanceFromOutput();
             
-            int start = input.network.inputCount + input.network.outputCount;
             float yc = (i % 30) / 30.0f;
 
             float dx = (inpDist) / (outDist + inpDist) + (yc % 5) / 5.0f;
@@ -288,7 +354,7 @@ public class NetworkPreview : MonoBehaviour
             node.SetVisualisation(logicNode);
             nodes[node.netNode.ID] = node;
         }
-
+		*/
 
 
 		// Add genes
