@@ -40,8 +40,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85d0830f26330464fb617e8338ee2f25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inactiveColour: {r: 1, g: 0, b: 0, a: 0.50980395}
-  activeColour: {r: 0, g: 1, b: 0.17241383, a: 0.50980395}
+  inactiveColour: {r: 0.7411765, g: 0.7647059, b: 0.78039217, a: 0.2}
+  positiveColour: {r: 0.14901961, g: 0.6509804, b: 0.35686275, a: 1}
+  negativeColour: {r: 0.7882353, g: 0.12156863, b: 0.21568628, a: 1}
   width: 2
 --- !u!114 &114882288336245968
 MonoBehaviour:

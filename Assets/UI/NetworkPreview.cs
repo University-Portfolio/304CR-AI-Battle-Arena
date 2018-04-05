@@ -300,7 +300,7 @@ public class NetworkPreview : MonoBehaviour
 		// Place nodes as layers
 		for (int i = 0; i < layers.Count; ++i)
 		{
-			float dx = i / (float)layers.Count;
+			float dx = layers.Count <= 1 ? 0.5f : i / (float)(layers.Count - 1);
 
 			// Sort nodes
 			layers[i].nodes.Sort((a, b) => a.ID.CompareTo(a.ID));
@@ -311,14 +311,14 @@ public class NetworkPreview : MonoBehaviour
 			// Place nodes centred 
 			for (int n = 0; n < nodeCount; ++n)
 			{
-				float dy = n / (float)nodeCount;
+				float dy = nodeCount <= 1 ? 0.5f : n / (float)(nodeCount - 1);
 				
 				NeatNode logicNode = layers[i].nodes[n];
 				NetworkNode node = Instantiate(defaultNode, hiddenSection);
 				
 				node.transform.position = new Vector3(
 					Mathf.Lerp(hiddenMin.position.x, hiddenMax.position.x, dx),
-					Mathf.Lerp(hiddenMin.position.y, hiddenMax.position.y, dy + yoffset),
+					Mathf.Lerp(hiddenMin.position.y, hiddenMax.position.y, dy),
 					0.0f
 				);
 
@@ -327,35 +327,7 @@ public class NetworkPreview : MonoBehaviour
 				nodes[node.netNode.ID] = node;
 			}
 		}
-
-        /*
-		// Place each node at the average midpoint 
-        for (int i = input.network.inputCount + input.network.outputCount; i < input.network.nodes.Count; ++i)
-        {
-            NeatNode logicNode = input.network.nodes[i];
-            NetworkNode node = Instantiate(defaultNode, hiddenSection);
-
-            float inpDist = logicNode.FurthestDistanceFromInput();
-            float outDist = logicNode.FurthestDistanceFromOutput();
-            
-            float yc = (i % 30) / 30.0f;
-
-            float dx = (inpDist) / (outDist + inpDist) + (yc % 5) / 5.0f;
-            float dy = yc;// (i - start) / (float)(input.network.nodes.Count - start);
-
-
-            node.transform.position = new Vector3(
-                hiddenMin.position.x + (hiddenMax.position.x - hiddenMin.position.x) * dx,
-                hiddenMin.position.y + (hiddenMax.position.y - hiddenMin.position.y) * dy,
-                0
-            );
-
-            // Update visual and cache
-            node.SetVisualisation(logicNode);
-            nodes[node.netNode.ID] = node;
-        }
-		*/
-
+		
 
 		// Add genes
 		foreach (NeatGene logicGene in input.network.genes)

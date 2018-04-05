@@ -15,7 +15,9 @@ public class NetworkGene : MonoBehaviour
 	[SerializeField]
 	private Color inactiveColour = new Color(0.5f, 0.5f, 0.5f, 0.2f);
 	[SerializeField]
-	private Color activeColour = new Color(1, 1, 1, 0.5f);
+	private Color positiveColour = new Color(1, 1, 1, 1);
+	[SerializeField]
+	private Color negativeColour = new Color(0, 0, 0, 1);
 
 	[SerializeField]
 	private float width = 1.0f;
@@ -52,14 +54,12 @@ public class NetworkGene : MonoBehaviour
 		float value = fromNode.netNode.workingValue * netGene.weight;
 		if (value < 0)
 		{
-			Color colour = inactiveColour * -value;
-			colour.a = activeColour.a;
+			Color colour = Color.Lerp(inactiveColour, negativeColour, -value);
 			visual.color = colour;
 		}
 		else
 		{
-			Color colour = activeColour * value;
-			colour.a = activeColour.a;
+			Color colour = Color.Lerp(inactiveColour, positiveColour, value);
 			visual.color = colour;
 		}
 	}

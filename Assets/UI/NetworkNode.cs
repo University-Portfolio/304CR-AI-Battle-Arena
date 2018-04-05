@@ -15,7 +15,9 @@ public class NetworkNode : MonoBehaviour
 	[SerializeField]
 	private Color inactiveColour = new Color(0.5f, 0.5f, 0.5f, 0.2f);
 	[SerializeField]
-	private Color activeColour = new Color(1, 1, 1, 0.5f);
+	private Color positiveColour = new Color(1, 1, 1, 1);
+	[SerializeField]
+	private Color negativeColour = new Color(0, 0, 0, 1);
 
 	/// <summary>
 	/// The node that this is a visualisation for
@@ -44,12 +46,8 @@ public class NetworkNode : MonoBehaviour
 		// Change colour based on the current readings
 		float value = netNode.workingValue;
 		if (value < 0)
-			visual.color = inactiveColour;
+			visual.color = Color.Lerp(inactiveColour, negativeColour, -value);
 		else
-		{
-			Color colour = activeColour * value;
-			colour.a = activeColour.a;
-			visual.color = colour;
-		}
+			visual.color = Color.Lerp(inactiveColour, positiveColour, value);
 	}
 }

@@ -110,8 +110,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visual: {fileID: 114373835397217688}
-  inactiveColour: {r: 1, g: 0, b: 0, a: 1}
-  activeColour: {r: 0, g: 1, b: 0.17254902, a: 1}
+  inactiveColour: {r: 0.7411765, g: 0.7647059, b: 0.78039217, a: 0.2}
+  positiveColour: {r: 0.14901961, g: 0.6509804, b: 0.35686275, a: 1}
+  negativeColour: {r: 0.7882353, g: 0.12156863, b: 0.21568628, a: 1}
 --- !u!222 &222193834445071580
 CanvasRenderer:
   m_ObjectHideFlags: 1
