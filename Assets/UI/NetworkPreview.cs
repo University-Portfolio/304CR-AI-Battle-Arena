@@ -285,6 +285,10 @@ public class NetworkPreview : MonoBehaviour
 			NeatNode logicNode = input.network.nodes[i];
 			Vector2Int id = new Vector2Int(logicNode.FurthestDistanceFromInput(), logicNode.FurthestDistanceFromOutput());
 
+			// Don't draw dettached nodes in visuals
+			if (!logicNode.HasActiveInputs && !logicNode.HasActiveOutputs)
+				continue;
+
 			if (!nodeDistances.ContainsKey(id))
 				nodeDistances.Add(id, new NodeLayer(id));
 

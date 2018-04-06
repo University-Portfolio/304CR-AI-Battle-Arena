@@ -33,7 +33,7 @@ public class NeatController
 	/// <summary>
 	/// What folder to save/load data from
 	/// </summary>
-	public string dataFolder = "Neat/Collections/";
+	public static string dataFolder = "Neat/Collections/";
 
 
 	/// <summary>
@@ -269,6 +269,96 @@ public class NeatController
 				activeSpecies.RemoveAt(i);
 				--i;
 			}
+	}
+
+	/// <summary>
+	/// Write the general settings for this network
+	/// </summary>
+	/// <returns></returns>
+	public void WriteNeatSettings()
+	{
+		if (!System.IO.Directory.Exists(dataFolder + collectionName))
+			System.IO.Directory.CreateDirectory(dataFolder + collectionName);
+
+		string path = dataFolder + collectionName + ".neat.xml";
+
+		using (XmlWriter writer = XmlWriter.Create(path))
+		{
+			writer.WriteStartDocument();
+			writer.WriteStartElement("NeatControllers");
+
+			writer.WriteElementString("structuralMutationChance", "" + structuralMutationChance);
+			writer.WriteElementString("weightMutationChance", "" + weightMutationChance);
+			writer.WriteElementString("geneStateFlipMutation", "" + geneStateFlipMutation);
+
+			writer.WriteElementString("disjointCoefficient", "" + disjointCoefficient);
+			writer.WriteElementString("excessCoefficient", "" + excessCoefficient);
+			writer.WriteElementString("weightDiffCoefficient", "" + weightDiffCoefficient);
+
+			writer.WriteElementString("speciesDeltaThreshold", "" + speciesDeltaThreshold);
+
+			writer.WriteElementString("breedConsideration", "" + breedConsideration);
+			writer.WriteElementString("breedRetention", "" + breedRetention);
+			
+
+			writer.WriteEndElement();
+			writer.WriteEndDocument();
+		}
+
+		Debug.Log("Written to '" + path + "'");
+	}
+
+
+	/// <summary>
+	/// Load the general settings for this collection
+	/// </summary>
+	/// <returns></returns>
+	public bool LoadNeatSettings()
+	{
+		if (!System.IO.Directory.Exists(dataFolder + collectionName))
+			return false;
+
+		string path = dataFolder + collectionName + ".neat.xml";
+
+		if (!System.IO.File.Exists(path))
+			return false;
+
+
+		XmlDocument document = new XmlDocument();
+		document.Load(path);
+
+		// Read document
+		XmlElement root = document.DocumentElement;
+		foreach (XmlElement child in root.ChildNodes)
+		{
+			if (child.Name == "structuralMutationChance")
+				structuralMutationChance = float.Parse(child.InnerText);
+			else if (child.Name == "weightMutationChance")
+				weightMutationChance = float.Parse(child.InnerText);
+			else if (child.Name == "geneStateFlipMutation")
+				geneStateFlipMutation = bool.Parse(child.InnerText);
+
+			else if (child.Name == "geneStateFlipMutation")
+				geneStateFlipMutation = bool.Parse(child.InnerText);
+
+			else if (child.Name == "disjointCoefficient")
+				disjointCoefficient = float.Parse(child.InnerText);
+			else if (child.Name == "excessCoefficient")
+				excessCoefficient = float.Parse(child.InnerText);
+			else if (child.Name == "weightDiffCoefficient")
+				weightDiffCoefficient = float.Parse(child.InnerText);
+
+			else if (child.Name == "speciesDeltaThreshold")
+				speciesDeltaThreshold = float.Parse(child.InnerText);
+
+			else if (child.Name == "breedConsideration")
+				breedConsideration = float.Parse(child.InnerText);
+			else if (child.Name == "breedRetention")
+				breedRetention = float.Parse(child.InnerText);
+		}
+
+		Debug.Log("Read from '" + path + "'");
+		return true;
 	}
 
 	/// <summary>

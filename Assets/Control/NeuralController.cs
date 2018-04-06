@@ -51,10 +51,13 @@ public class NeuralController : MonoBehaviour
 		}
 		
 		neatController = new NeatController("AiArena");
-		neatController.breedRetention = 0.1f;
-		neatController.breedConsideration = 0.4f;
-		neatController.speciesDeltaThreshold = 3.0f;
+		if (!neatController.LoadNeatSettings())
+		{
+			Debug.Log("Using default NEAT settings");
+			neatController.WriteNeatSettings();
+		}
 		NeatNetwork[] population = neatController.GenerateBasePopulation(GameMode.Main.CharacterCount, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
+
 
 		// Use controller's runtime to start from
 		runTime = neatController.runTime;

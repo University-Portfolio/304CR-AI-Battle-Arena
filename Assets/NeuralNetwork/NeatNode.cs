@@ -42,11 +42,37 @@ public class NeatNode
     /// </summary>
     public readonly List<NeatGene> outputGenes;
 
+	/// <summary>
+	/// Does this node have any active inputs
+	/// </summary>
+	public bool HasActiveInputs
+	{
+		get
+		{
+			foreach (NeatGene gene in inputGenes)
+				if (gene.isEnabled)
+					return true;
+			return false;
+		}
+	}
+	/// <summary>
+	/// Does this node have any active outputs
+	/// </summary>
+	public bool HasActiveOutputs
+	{
+		get
+		{
+			foreach (NeatGene gene in outputGenes)
+				if (gene.isEnabled)
+					return true;
+			return false;
+		}
+	}
 
-    /// <summary>
-    /// The current working weight for this node
-    /// </summary>
-    public float workingValue;
+	/// <summary>
+	/// The current working weight for this node
+	/// </summary>
+	public float workingValue;
 
     /// <summary>
     /// Is the current working value the final value
