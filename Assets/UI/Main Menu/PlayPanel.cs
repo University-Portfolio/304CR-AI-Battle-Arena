@@ -36,7 +36,7 @@ public class PlayPanel : MonoBehaviour
 		spawnPlayer.isOn = false;
 	}
 
-	void Awake()
+	void OnEnable()
 	{
 		existingCollections = NeatController.GetExistingCollections();
 
@@ -44,11 +44,23 @@ public class PlayPanel : MonoBehaviour
 		if (existingCollections.Length == 0)
 		{
 			populationName.gameObject.SetActive(false);
+
+
+			treeCount.SetRange(0, MaxCharacterCount);
+			treeCount.Value = treeCount.Max;
+			treeCount.Interactable = false;
+
+			neuralCount.SetRange(0, MaxCharacterCount);
+			neuralCount.Value = 0;
+			neuralCount.Interactable = false;
+
 			existingCollections = new string[] { "AiArena" };
 		}
 		else
 		{
 			populationName.gameObject.SetActive(true);
+			treeCount.Interactable = true;
+			neuralCount.Interactable = true;
 
 			// Update displayed options
 			populationName.ClearOptions();

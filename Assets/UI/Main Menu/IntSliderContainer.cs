@@ -18,6 +18,7 @@ public class IntSliderContainer : MonoBehaviour
 	public int Max { get { return Mathf.RoundToInt(slider.maxValue); } }
 	public int Min { get { return Mathf.RoundToInt(slider.minValue); } }
 
+	public bool Interactable { get { return slider.interactable; } set { slider.interactable = value; } }
 
 	void Awake()
 	{

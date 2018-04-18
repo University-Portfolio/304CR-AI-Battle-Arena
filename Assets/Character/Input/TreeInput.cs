@@ -12,6 +12,7 @@ public class TreeInput : MonoBehaviour
 	void Start()
 	{
 		character = GetComponent<Character>();
+		character.SetColour(new Color(0.4f, 0.4f, 0.4f));
 	}
 
 	void Update()

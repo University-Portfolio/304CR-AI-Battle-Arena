@@ -31,7 +31,7 @@ public class TrainPanel : MonoBehaviour
 		newPopulationToggle.isOn = true;
 	}
 
-	void Awake()
+	void OnEnable()
 	{
 		existingCollections = NeatController.GetExistingCollections();
 
