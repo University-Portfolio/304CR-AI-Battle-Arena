@@ -11,9 +11,11 @@ public class GameMode : MonoBehaviour
 	public static GameMode main { get; private set; }
 
 	[SerializeField]
+	private GameObject mainMenu;
+	[SerializeField]
 	private Character defaultCharacter;
-	
-	
+
+
 	public StageController stage { get; private set; }
 	public Character[] characters { get; private set; }
 
@@ -55,13 +57,15 @@ public class GameMode : MonoBehaviour
 		characters = null;
 		isGameActive = false;
 		isTrainingGame = false;
-
-		StartGame(32, true, 5);
-		//StartTraining(32);
 	}
 	
 	void Update ()
 	{
+		// Cancel the game
+		if (Input.GetKeyDown(KeyCode.Escape))
+			CancelGame();
+
+
 		if (!isGameActive)
 			return;
 
@@ -211,6 +215,7 @@ public class GameMode : MonoBehaviour
 	public void StartGame(int totalCharacters, bool spawnPlayer, int neuralCount)
 	{
 		Debug.Log("Starting game");
+		mainMenu.SetActive(false);
 		currentRound = 1;
 		isGameActive = true;
 		isTrainingGame = false;
@@ -233,6 +238,7 @@ public class GameMode : MonoBehaviour
 	public void StartTraining(int totalCharacters)
 	{
 		Debug.Log("Starting Training");
+		mainMenu.SetActive(false);
 		currentRound = 1;
 		isGameActive = true;
 		isTrainingGame = true;
@@ -252,6 +258,7 @@ public class GameMode : MonoBehaviour
 	public void ResetGame()
 	{
 		Debug.Log("Resetting game");
+		mainMenu.SetActive(false);
 		currentRound = 1;
 		isGameActive = true;
 
@@ -265,6 +272,7 @@ public class GameMode : MonoBehaviour
 	public void CancelGame()
 	{
 		Debug.Log("Cancelling game");
+		mainMenu.SetActive(true);
 
 		isGameActive = false;
 		isTrainingGame = false;
@@ -274,5 +282,7 @@ public class GameMode : MonoBehaviour
 		foreach (Character character in characters)
 			if (character != null)
 				Destroy(character.gameObject);
+
+		characters = null;
 	}
 }

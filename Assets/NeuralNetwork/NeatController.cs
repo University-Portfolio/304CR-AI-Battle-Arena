@@ -137,7 +137,7 @@ public class NeatController
 			if (LoadXML())
 			{
 				Debug.Log("Loaded NEAT collection '" + collectionName + "' from generation " + generationCounter);
-				return BreedNextGeneration(); // Can only load that generation as a starting point
+				return BreedNextGeneration(count); // Can only load that generation as a starting point
 			}
 			else
 				Debug.Log("Starting NEAT collection '" + collectionName + "' from scratch");
@@ -161,10 +161,12 @@ public class NeatController
 		return population;
 	}
 
-    /// <summary>
-    /// Create the next generation of networks
-    /// </summary>
-    public NeatNetwork[] BreedNextGeneration()
+	/// <summary>
+	/// Create the next generation of networks
+	/// </summary>
+	/// <param name="newPopulationSize">How large the next population should be</param>
+	/// <returns></returns>
+	public NeatNetwork[] BreedNextGeneration(int newPopulationSize)
     {
 		SaveXML();
 
@@ -190,7 +192,7 @@ public class NeatController
 				allocation[species] = 0;
 			else
 			{
-				int alloc = (int)((fitness[species] / totalFitness) * population.Length);
+				int alloc = (int)((fitness[species] / totalFitness) * newPopulationSize);
 				allocation[species] = alloc;
 				totalNewCount += alloc;
 			}
@@ -198,19 +200,19 @@ public class NeatController
 
 
 		// Handle if new count is too high or low
-		if (totalNewCount < population.Length)
+		if (totalNewCount < newPopulationSize)
 		{
 			// Randomly allocate the remainder
-			for (int i = 0; i < population.Length - totalNewCount; ++i)
+			for (int i = 0; i < newPopulationSize - totalNewCount; ++i)
 			{
 				NeatSpecies species = activeSpecies[Random.Range(0, activeSpecies.Count)];
 				allocation[species]++;
 			}
 		}
-		else if (totalNewCount > population.Length)
+		else if (totalNewCount > newPopulationSize)
 		{
 			// Randomly deallocate the remainder
-			for (int i = 0; i < totalNewCount - population.Length; ++i)
+			for (int i = 0; i < totalNewCount - newPopulationSize; ++i)
 			{
 				NeatSpecies species = activeSpecies[Random.Range(0, activeSpecies.Count)];
 				allocation[species]--;

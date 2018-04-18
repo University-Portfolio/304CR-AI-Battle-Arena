@@ -42,7 +42,8 @@ public class CharacterObserver : MonoBehaviour
 	{
 		Character[] characters = GameMode.main.characters;
 		viewTarget = null;
-		if (GameMode.main.aliveCount == 0)
+
+		if (GameMode.main.aliveCount == 0 || characters == null)
 			return;
 
 		for (int i = 0; i < characters.Length; ++i)
