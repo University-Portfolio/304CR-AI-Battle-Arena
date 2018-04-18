@@ -152,19 +152,21 @@ public class DecisionRange : IDecision
 	}
 
 	public readonly string var;
+	public readonly bool useGreaterThan;
 	private List<Range> ranges = new List<Range>();
-	public IDecision elseDecision;
+	public IDecision defaultDecision;
 
 
-	public DecisionRange(string var)
+	public DecisionRange(string var, bool useGreaterThan)
 	{
 		this.var = var;
+		this.useGreaterThan = useGreaterThan;
 	}
 
 	public void AddRange(float max, IDecision decision)
 	{
 		ranges.Add(new Range(max, decision));
-		ranges.Sort((a, b) => a.max.CompareTo(b.max));
+		ranges.Sort((a, b) => useGreaterThan ? -a.max.CompareTo(b.max) : a.max.CompareTo(b.max));
 	}
 
 	public ActionCallback Process(VariableCollection globalVars, VariableCollection agentProfile)
@@ -178,10 +180,10 @@ public class DecisionRange : IDecision
 
 		// Find value to make decision based off
 		foreach (Range range in ranges)
-			if (val < range.max)
+			if (useGreaterThan ? val > range.max : val < range.max)
 				return range.decision != null ? range.decision.Process(globalVars, agentProfile) : null;
 
-		return elseDecision != null ? elseDecision.Process(globalVars, agentProfile) : null;
+		return defaultDecision != null ? defaultDecision.Process(globalVars, agentProfile) : null;
 	}
 }
 

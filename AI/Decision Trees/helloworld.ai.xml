@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+	All profiles and trees work by calling accessing and compaing float variables
+	-Variables are case sensity
+	-Each Profile has it's own set of variables
+	-In the event a profile has the same variable as a global var, the global var is prefered
+	
+	Avaliable Global Vars:
+		-StageSize		<- The radius of the stage
+		-AliveCount		<- How many other players are alive currently
+		-ActionEnum		<- The current action being performed
+			-0: None
+			-1: Shooting
+			-2: Shielding
+		-ActionCooldown	<- How long until the current action is over
+		
+	Avaliable Actions:
+		-Flee			<- Attempt to run away from nearby characters
+		-Skirt			<- Attempt to stay as close to the edge as possible
+		-Defend			<- Attempt to survive in the local area (Avoid moving)
+		-Attack			<- Attempt to hunt down and kill others
+		
+	Supported Profile Vars:
+
+-->
+<Agent>
+	<Profile weight="100">
+		<var name="MyVar">100</var>
+		<var name="MyOtherVar">100</var>
+	</Profile>
+	<Profile weight="100">
+		<var name="MyVar">100</var>
+		<var name="MyOtherVar">100</var>
+	</Profile>
+	
+	<!-- The actual descision tree structure that will be used
+	-->
+	<Decision>
+		<range var="StageSize" type="lessThan">
+			<limit value="10">
+				<state action="Flee"/>
+			</limit>
+			<limit value="27">
+				<state action="Skirt"/>
+			</limit>
+			<!-- To be called in event nothing above is valid -->
+			<default>
+				<state action="Attack"/>
+			</default>
+		</range>
+	</Decision>
+</Agent>

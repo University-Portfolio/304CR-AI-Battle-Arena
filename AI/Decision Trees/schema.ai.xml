@@ -42,24 +42,24 @@
 		<!-- A condition based boolean decision which compares two variables
 			Or hard coded floats
 		-->
-		<if a="myFirstVar" b="mySecondVar" operand="==">
+		<if lhs="myFirstVar" rhs="mySecondVar" operand="==">
 			<true>
-				<state action="RUN"/>
+				<state action="Flee"/>
 			</true>
 			<false>
-				<!-- Check whether a variable is < the given value
+				<!-- Check whether a variable is < or > the given value
 					Stored and executed in order of max.value
 				-->
-				<range var="aVar">
-					<max value="1">
-						<state action="RUN"/>
-					</max>
-					<max value="3">
-						<state action="RUN"/>
-					</max>
-					<!-- To be called in event-->
+				<range var="aVar" type=">">
+					<limit value="1">
+						<state action="Flee"/>
+					</limit>
+					<limit value="3">
+						<state action="Flee"/>
+					</limit>
+					<!-- To be called in event nothing above is valid -->
 					<default>
-						<state action="RUN"/>
+						<state action="Flee"/>
 					</default>
 				</range>
 				

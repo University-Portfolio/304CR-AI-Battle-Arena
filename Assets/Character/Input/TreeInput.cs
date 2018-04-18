@@ -54,7 +54,8 @@ public class TreeInput : MonoBehaviour
 		tree.RegisterActionState("Attack", ActionAttack);
 		tree.RegisterActionState("Skirt", ActionSkirt);
 
-		tree.DebugMake();
+		LoadTree("helloworld.ai.xml");
+		//tree.DebugMake();
 	}
 
 	void Update()
@@ -104,112 +105,30 @@ public class TreeInput : MonoBehaviour
 
 	void ActionAttack()
 	{
+		character.Fire();
 	}
 
 	/// <summary>
-	/// Read in the xml for a specfic generation
+	/// Read the XML file for a specific tree
 	/// </summary>
-	/// <param name="generation">The desired generation to load (Will load highest found, if -1)</param>
-	public bool LoadXML(int generation = -1)
+	/// <param name="name">The name of the tree to load</param>
+	/// <returns></returns>
+	public bool LoadTree(string name)
 	{
-		if (!System.IO.Directory.Exists(dataFolder + collectionName))
-			return false;
-
-		// Attempt to find highest generation
-		if (generation == -1)
+		if (!tree.LoadXML(dataFolder + name))
 		{
-			generation = 0;
-			while (true)
-			{
-				if (!System.IO.File.Exists(dataFolder + collectionName + "/gen_" + (generation + 1) + ".xml"))
-					break;
-				else
-					generation++;
-			}
+			Debug.LogWarning("Cannot load tree '" + dataFolder + name + "'");
+			return false;
 		}
 
-		string path = dataFolder + collectionName + "/gen_" + generation + ".xml";
-
-		if (!System.IO.File.Exists(path))
-			return false;
-
-
-		XmlDocument document = new XmlDocument();
-		document.Load(path);
-
-		// Read document
-		XmlElement root = document.DocumentElement;
-		foreach (XmlElement child in root.ChildNodes)
-		{
-			if (child.Name == "innovationCounter")
-				innovationCounter = System.Int32.Parse(child.InnerText);
-
-			else if (child.Name == "generationCounter")
-				generationCounter = System.Int32.Parse(child.InnerText);
-
-			else if (child.Name == "runTime")
-				runTime = System.Int32.Parse(child.InnerText);
-
-			// Read genes
-			else if (child.Name == "Generation")
-			{
-				innovationIds = new Dictionary<Vector2Int, int>();
-				foreach (XmlElement gene in child.ChildNodes)
-				{
-					if (gene.Name != "gene")
-						continue;
-
-					int fromId = System.Int32.Parse(child.GetAttribute("from"));
-					int toId = System.Int32.Parse(child.GetAttribute("to"));
-					int inno = System.Int32.Parse(child.GetAttribute("inno"));
-					innovationIds[new Vector2Int(fromId, toId)] = inno;
-				}
-			}
-
-
-			// Read species (Need to read it before networks)
-			else if (child.Name == "ActiveSpecies")
-			{
-				activeSpecies = new List<NeatSpecies>();
-				foreach (XmlElement entry in child.ChildNodes)
-				{
-					if (entry.Name != "Species")
-						continue;
-
-					activeSpecies.Add(new NeatSpecies(this, entry));
-				}
-			}
-
-
-			// Read networks
-			else if (child.Name == "Population")
-			{
-				List<NeatNetwork> newPopulation = new List<NeatNetwork>();
-
-				foreach (XmlElement entry in child.ChildNodes)
-				{
-					if (entry.Name != "Network")
-						continue;
-
-					NeatNetwork network = new NeatNetwork(this, entry);
-					newPopulation.Add(network);
-				}
-
-				population = newPopulation.ToArray();
-			}
-
-		}
-
-		Debug.Log("Read from '" + path + "'");
 		return true;
 	}
 
-
 	/// <summary>
-	/// Retreive names of any collections which exist on disc
+	/// Retreive names of any trees which exist on disc
 	/// </summary>
 	/// <returns></returns>
-	public static string[] GetExistingCollections()
+	public static string[] GetExistingTrees()
 	{
 		if (!System.IO.Directory.Exists(dataFolder))
 			System.IO.Directory.CreateDirectory(dataFolder);
