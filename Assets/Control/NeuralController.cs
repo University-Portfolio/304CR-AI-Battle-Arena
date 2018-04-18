@@ -72,7 +72,7 @@ public class NeuralController : MonoBehaviour
 	public void OnTrainingSessionEnd()
 	{
 		Debug.Log("Breeding next generation");
-		NeatNetwork[] population = neatController.BreedNextGeneration(populationSize);
+		neatController.BreedNextGeneration(populationSize);
 	}
 
 	/// <summary>
@@ -93,7 +93,7 @@ public class NeuralController : MonoBehaviour
 		}
 		
 
-		NeatNetwork[] population = neatController.GenerateBasePopulation(count, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
+		neatController.GenerateBasePopulation(count, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
 
 		// Use controller's runtime to start from
 		runTime = neatController.runTime;
@@ -131,7 +131,7 @@ public class NeuralController : MonoBehaviour
 		for (int i = 0; i < 3; ++i)
 		{
 			int c = i;
-			int d = oldAgents.Count - 1 - i;
+			//int d = oldAgents.Count - 1 - i;
 
 			// Give crown
 			if (c < oldAgents.Count)

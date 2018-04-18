@@ -307,7 +307,7 @@ public class NetworkPreview : MonoBehaviour
 			layers[i].nodes.Sort((a, b) => a.ID.CompareTo(a.ID));
 
 			int nodeCount = layers[i].nodes.Count;
-			float yoffset = (1 / (float)nodeCount) * 0.5f;
+			//float yoffset = (1 / (float)nodeCount) * 0.5f;
 
 			// Place nodes centred 
 			for (int n = 0; n < nodeCount; ++n)
