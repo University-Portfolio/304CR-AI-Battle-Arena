@@ -212,11 +212,13 @@ public class GameMode : MonoBehaviour
 	/// <param name="totalCharacters">How many characters are going to be spawned</param>
 	/// <param name="spawnPlayer">Should the player be spawned in too?</param>
 	/// <param name="neuralCount">How many neural network agents to spawn</param>
-	public void StartGame(int totalCharacters, bool spawnPlayer, int neuralCount)
+	/// <param name="neuralCollection">The name of the collection to use</param>
+	public void StartGame(int totalCharacters, bool spawnPlayer, int neuralCount, string neuralCollection)
 	{
 		Debug.Log("Starting game");
 		mainMenu.SetActive(false);
-		currentRound = 1;
+		currentRound = 0;
+		nextRoundCooldown = 0.0f;
 		isGameActive = true;
 		isTrainingGame = false;
 
@@ -226,7 +228,7 @@ public class GameMode : MonoBehaviour
 		int totalAgents = spawnPlayer ? characterCount - 1 : characterCount;
 		neuralAgentCount = System.Math.Min(totalAgents, neuralCount);
 
-		NeuralController.main.InitialiseController(neuralAgentCount);
+		NeuralController.main.InitialiseController(neuralCollection, neuralAgentCount);
 		stage.ResetStage();
 		SpawnCharacters();
 	}
@@ -235,11 +237,13 @@ public class GameMode : MonoBehaviour
 	/// Starts the game in training mode
 	/// </summary>
 	/// <param name="totalCharacters">How many characters are going to be spawned</param>
-	public void StartTraining(int totalCharacters)
+	/// <param name="neuralCollection">The name of the collection to use</param>
+	public void StartTraining(int totalCharacters, string neuralCollection)
 	{
 		Debug.Log("Starting Training");
 		mainMenu.SetActive(false);
-		currentRound = 1;
+		currentRound = 0;
+		nextRoundCooldown = 0.0f;
 		isGameActive = true;
 		isTrainingGame = true;
 
@@ -247,7 +251,7 @@ public class GameMode : MonoBehaviour
 		characterCount = totalCharacters;
 		neuralAgentCount = totalCharacters;
 
-		NeuralController.main.InitialiseController(neuralAgentCount);
+		NeuralController.main.InitialiseController(neuralCollection, neuralAgentCount);
 		stage.ResetStage();
 		SpawnCharacters();
 	}
@@ -284,5 +288,6 @@ public class GameMode : MonoBehaviour
 				Destroy(character.gameObject);
 
 		characters = null;
+		nextRoundCooldown = 0.0f;
 	}
 }

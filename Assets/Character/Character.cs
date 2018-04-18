@@ -75,6 +75,10 @@ public class Character : MonoBehaviour
 	public Action currentAction { get; private set; }
 
 	/// <summary>
+	/// Initial time to prevent any actions after first spawn
+	/// </summary>
+	private float spawnTimer = 0;
+	/// <summary>
 	/// The time left until the character is no doing the action
 	/// </summary>
 	private float actionTimer = 0;
@@ -124,6 +128,7 @@ public class Character : MonoBehaviour
 			currentShield = Instantiate(defaultShield);
 			currentShield.owner = this;
 		}
+		Respawn();
 	}
 
 	void OnDestroy()
@@ -150,6 +155,14 @@ public class Character : MonoBehaviour
 				}
 			}
 			return;
+		}
+
+		// Prevent movement while initially spawned in
+		if (spawnTimer != 0.0f)
+		{
+			spawnTimer -= Time.deltaTime;
+			if (spawnTimer < 0.0f)
+				spawnTimer = 0.0f;
 		}
 
         // Turning
@@ -229,7 +242,7 @@ public class Character : MonoBehaviour
     public void Move(float amount)
     {
 		// Cannot move while shooting
-		if(currentAction == Action.None && isAlive)
+		if(currentAction == Action.None && isAlive && spawnTimer == 0.0f)
 			deltaMovement += amount * moveSpeed;
     }
 
@@ -239,7 +252,7 @@ public class Character : MonoBehaviour
     /// <param name="amount">+: right, -:left</param>
     public void Turn(float amount)
     {
-		if(isAlive)
+		if(isAlive && spawnTimer == 0.0f)
 			deltaAngle += amount * turnSpeed;
     }
 
@@ -249,7 +262,7 @@ public class Character : MonoBehaviour
     /// <returns>If arrow successfully fires</returns>
     public bool Fire()
     {
-		if (currentAction != Action.None || IsDead)
+		if (currentAction != Action.None || IsDead || spawnTimer != 0.0f)
 			return false;
 
 		arrowTimer = shootDuration * 0.8f;
@@ -264,7 +277,7 @@ public class Character : MonoBehaviour
 	/// <returns>If shield successfully deploys</returns>
 	public bool Block()
 	{
-		if (currentAction != Action.None || IsDead || shieldTimer > 0.0f)
+		if (currentAction != Action.None || IsDead || shieldTimer > 0.0f || spawnTimer != 0.0f)
 			return false;
 
 		currentShield.Deploy();
@@ -326,6 +339,7 @@ public class Character : MonoBehaviour
 		currentAction = Action.None;
 		arrowTimer = 0.0f;
 		shieldTimer = 0.0f;
+		spawnTimer = 1.0f;
 	}
 
 

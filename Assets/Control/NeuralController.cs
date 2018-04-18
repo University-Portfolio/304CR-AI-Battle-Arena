@@ -54,18 +54,6 @@ public class NeuralController : MonoBehaviour
 			Debug.LogError("Multiple NeuralController have been created");
 			return;
 		}
-		
-
-		// Load NEAT controller
-		neatController = new NeatController("AiArena");
-		if (!neatController.LoadNeatSettings())
-		{
-			Debug.Log("Using default NEAT settings");
-			neatController.WriteNeatSettings();
-		}
-
-		// Use controller's runtime to start from
-		runTime = neatController.runTime;
 	}
 	
 	void Update ()
@@ -90,10 +78,21 @@ public class NeuralController : MonoBehaviour
 	/// <summary>
 	/// Create networks
 	/// </summary>
-	/// <param name="count"></param>
-	public void InitialiseController(int count)
+	/// <param name="collectionName">The name of the collection to load/create</param>
+	/// <param name="count">Number of networks to create</param>
+	public void InitialiseController(string collectionName, int count)
 	{
 		populationSize = count;
+
+		// Load NEAT controller
+		neatController = new NeatController(collectionName);
+		if (!neatController.LoadNeatSettings())
+		{
+			Debug.Log("Using default NEAT settings");
+			neatController.WriteNeatSettings();
+		}
+		
+
 		NeatNetwork[] population = neatController.GenerateBasePopulation(count, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
 
 		// Use controller's runtime to start from

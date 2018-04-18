@@ -521,4 +521,21 @@ public class NeatController
 		Debug.Log("Read from '" + path + "'");
 		return true;
 	}
+
+
+	/// <summary>
+	/// Retreive names of any collections which exist on disc
+	/// </summary>
+	/// <returns></returns>
+	public static string[] GetExistingCollections()
+	{
+		if (!System.IO.Directory.Exists(dataFolder))
+			System.IO.Directory.CreateDirectory(dataFolder);
+
+		string[] values = System.IO.Directory.GetDirectories(dataFolder);
+		for (int i = 0; i < values.Length; ++i)
+			values[i] = values[i].Substring(dataFolder.Length);
+
+		return values;
+	}
 }

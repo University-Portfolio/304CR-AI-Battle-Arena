@@ -15,6 +15,10 @@ public class PlayPanel : MonoBehaviour
 	private IntSliderContainer neuralCount;
 
 	[SerializeField]
+	private Dropdown populationName;
+	private string[] existingCollections;
+
+	[SerializeField]
 	private Toggle spawnPlayer;
 
 	
@@ -30,6 +34,32 @@ public class PlayPanel : MonoBehaviour
 		neuralCount.Value = 0;
 
 		spawnPlayer.isOn = false;
+	}
+
+	void Awake()
+	{
+		existingCollections = NeatController.GetExistingCollections();
+
+		// No collections on disc so cannot load
+		if (existingCollections.Length == 0)
+		{
+			populationName.gameObject.SetActive(false);
+			existingCollections = new string[] { "AiArena" };
+		}
+		else
+		{
+			populationName.gameObject.SetActive(true);
+
+			// Update displayed options
+			populationName.ClearOptions();
+
+			List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
+			foreach (string collection in existingCollections)
+				options.Add(new Dropdown.OptionData(collection));
+			populationName.AddOptions(options);
+		}
+
+		populationName.value = 0;
 	}
 
 	public void OnTotalCountChange()
@@ -66,6 +96,6 @@ public class PlayPanel : MonoBehaviour
 
 	public void OnStartPress()
 	{
-		GameMode.main.StartGame(totalCount.Value, spawnPlayer.isOn, neuralCount.Value);
+		GameMode.main.StartGame(spawnPlayer.isOn ? totalCount.Value + 1 : totalCount.Value, spawnPlayer.isOn, neuralCount.Value, existingCollections[populationName.value]);
 	}
 }
