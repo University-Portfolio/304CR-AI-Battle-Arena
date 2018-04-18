@@ -19,6 +19,10 @@ public class PlayPanel : MonoBehaviour
 	private string[] existingCollections;
 
 	[SerializeField]
+	private Dropdown treeName;
+	private string[] existingTrees;
+
+	[SerializeField]
 	private Toggle spawnPlayer;
 
 	
@@ -39,6 +43,7 @@ public class PlayPanel : MonoBehaviour
 	void OnEnable()
 	{
 		existingCollections = NeatController.GetExistingCollections();
+		existingTrees = TreeInput.GetExistingTrees();
 
 		// No collections on disc so cannot load
 		if (existingCollections.Length == 0)
@@ -71,7 +76,23 @@ public class PlayPanel : MonoBehaviour
 			populationName.AddOptions(options);
 		}
 
+
+		if (existingTrees.Length == 0)
+		{
+			existingTrees = new string[] { "Null" };
+		}
+
+		// Update displayed options
+		treeName.ClearOptions();
+
+		List<Dropdown.OptionData> treeOptions = new List<Dropdown.OptionData>();
+		foreach (string collection in existingTrees)
+			treeOptions.Add(new Dropdown.OptionData(collection));
+		treeName.AddOptions(treeOptions);
+
+
 		populationName.value = 0;
+		treeName.value = 0;
 	}
 
 	public void OnTotalCountChange()
@@ -108,6 +129,6 @@ public class PlayPanel : MonoBehaviour
 
 	public void OnStartPress()
 	{
-		GameMode.main.StartGame(spawnPlayer.isOn ? totalCount.Value + 1 : totalCount.Value, spawnPlayer.isOn, neuralCount.Value, existingCollections[populationName.value]);
+		GameMode.main.StartGame(spawnPlayer.isOn ? totalCount.Value + 1 : totalCount.Value, spawnPlayer.isOn, neuralCount.Value, existingTrees[treeName.value], existingCollections[populationName.value]);
 	}
 }

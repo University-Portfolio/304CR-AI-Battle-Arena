@@ -41,21 +41,6 @@ public class TreeInput : MonoBehaviour
 
 		// Offset agents
 		decisionTimer = UnityEngine.Random.value * tickRate;
-
-
-		tree = new DecisionTree();
-
-		// Set vars initialy
-		UpdateDecisionVars();
-
-		// Create states
-		tree.RegisterActionState("Flee", ActionFlee);
-		tree.RegisterActionState("Defend", ActionDefend);
-		tree.RegisterActionState("Attack", ActionAttack);
-		tree.RegisterActionState("Skirt", ActionSkirt);
-
-		LoadTree("helloworld.ai.xml");
-		//tree.DebugMake();
 	}
 
 	void Update()
@@ -115,6 +100,15 @@ public class TreeInput : MonoBehaviour
 	/// <returns></returns>
 	public bool LoadTree(string name)
 	{
+		tree = new DecisionTree();
+		
+		// Create states
+		tree.RegisterActionState("Flee", ActionFlee);
+		tree.RegisterActionState("Defend", ActionDefend);
+		tree.RegisterActionState("Attack", ActionAttack);
+		tree.RegisterActionState("Skirt", ActionSkirt);
+
+
 		if (!tree.LoadXML(dataFolder + name))
 		{
 			Debug.LogWarning("Cannot load tree '" + dataFolder + name + "'");
@@ -132,11 +126,14 @@ public class TreeInput : MonoBehaviour
 	{
 		if (!System.IO.Directory.Exists(dataFolder))
 			System.IO.Directory.CreateDirectory(dataFolder);
+		
+		string[] values = System.IO.Directory.GetFiles(dataFolder);
+		List<string> actualValues = new List<string>();
 
-		string[] values = System.IO.Directory.GetDirectories(dataFolder);
 		for (int i = 0; i < values.Length; ++i)
-			values[i] = values[i].Substring(dataFolder.Length);
+			if (values[i].EndsWith(".ai.xml", System.StringComparison.CurrentCultureIgnoreCase))
+				actualValues.Add(values[i].Substring(dataFolder.Length));
 
-		return values;
+		return actualValues.ToArray();
 	}
 }

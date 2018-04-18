@@ -22,6 +22,7 @@ public class GameMode : MonoBehaviour
 	public bool playerExists { get; private set; }
 	public int characterCount { get; private set; }
 	public int neuralAgentCount { get; private set; }
+	private string desiredTreeAiName;
 
 	[SerializeField]
 	private int rounds = 5;
@@ -122,7 +123,6 @@ public class GameMode : MonoBehaviour
 	/// <summary>
 	/// Create objects for all the characters
 	/// </summary>
-	/// <param name="spawnPlayer">Should a player be spawned</param>
 	private void SpawnCharacters()
 	{
 		// Cleanup old characters
@@ -158,7 +158,10 @@ public class GameMode : MonoBehaviour
 				neuralAgents[i] = agent;
 			}
 			else
-				characters[index].gameObject.AddComponent<TreeInput>();
+			{
+				TreeInput agent = characters[index].gameObject.AddComponent<TreeInput>();
+				agent.LoadTree(desiredTreeAiName);
+			}
 		}
 
 		PlaceCharactersInRing(); // Place characters
@@ -212,8 +215,9 @@ public class GameMode : MonoBehaviour
 	/// <param name="totalCharacters">How many characters are going to be spawned</param>
 	/// <param name="spawnPlayer">Should the player be spawned in too?</param>
 	/// <param name="neuralCount">How many neural network agents to spawn</param>
+	/// <param name="treeName">The name of the tree type to load in</param>
 	/// <param name="neuralCollection">The name of the collection to use</param>
-	public void StartGame(int totalCharacters, bool spawnPlayer, int neuralCount, string neuralCollection)
+	public void StartGame(int totalCharacters, bool spawnPlayer, int neuralCount, string treeName, string neuralCollection)
 	{
 		Debug.Log("Starting game");
 		mainMenu.SetActive(false);
@@ -227,6 +231,7 @@ public class GameMode : MonoBehaviour
 		characterCount = System.Math.Max(2, totalCharacters);
 		int totalAgents = spawnPlayer ? characterCount - 1 : characterCount;
 		neuralAgentCount = System.Math.Min(totalAgents, neuralCount);
+		desiredTreeAiName = treeName;
 
 		NeuralController.main.InitialiseController(neuralCollection, neuralAgentCount);
 		stage.ResetStage();
