@@ -81,7 +81,7 @@ public class Character : MonoBehaviour
 	/// <summary>
 	/// The time left until the character is no doing the action
 	/// </summary>
-	private float actionTimer = 0;
+	public float actionTimer { get; private set; }
 	/// <summary>
 	/// The time left until the arrow fires
 	/// </summary>

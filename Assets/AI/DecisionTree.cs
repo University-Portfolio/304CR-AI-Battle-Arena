@@ -15,6 +15,10 @@ public class DecisionTree
 	private VariableCollection[] agentProfiles;
 
 	/// <summary>
+	/// The agent variables that are currently being used
+	/// </summary>
+	private VariableCollection agentProfile = new VariableCollection();
+	/// <summary>
 	/// The global variables that are avaliable to all profiles
 	/// </summary>
 	private VariableCollection globalVars = new VariableCollection();
@@ -62,7 +66,7 @@ public class DecisionTree
 	/// </summary>
 	public void Recalculate()
 	{
-		currentAction = rootDecision != null ? rootDecision.Process(globalVars, globalVars) : null;
+		currentAction = rootDecision != null ? rootDecision.Process(globalVars, agentProfile) : null;
 	}
 
 	/// <summary>

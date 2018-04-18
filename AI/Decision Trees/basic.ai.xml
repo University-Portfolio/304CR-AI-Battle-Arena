@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+	All profiles and trees work by calling accessing and compaing float variables
+	-Variables are case sensity
+	-Each Profile has it's own set of variables
+	-In the event a profile has the same variable as a global var, the global var is prefered
+	
+	Avaliable Global Vars:
+		-StageSize		<- The radius of the stage
+		-AliveCount		<- How many other players are alive currently
+		-ActionEnum		<- The current action being performed
+			-0: None
+			-1: Shooting
+			-2: Shielding
+		-ActionCooldown	<- How long until the current action is over
+		
+	Avaliable Actions:
+		-Flee			<- Attempt to run away from nearby characters
+		-Skirt			<- Attempt to stay as close to the edge as possible
+		-Defend			<- Attempt to survive in the local area (Avoid moving)
+		-Attack			<- Attempt to hunt down and kill others
+		
+	Supported Profile Vars:
+
+-->
+<Agent>
+	<!-- Profiles a variable stores for a single agent 
+		Profile will be assigned based on weight
+	-->
+	<Profile weight="100">
+		<var name="MyVar">100</var>
+		<var name="MyOtherVar">100</var>
+	</Profile>
+	<Profile weight="100">
+		<var name="MyVar">100</var>
+		<var name="MyOtherVar">100</var>
+	</Profile>
+	
+	<!-- The actual descision tree structure that will be used
+	-->
+	<Decision>
+		<!-- A condition based boolean decision which compares two variables
+			Or hard coded floats
+		-->
+		<if a="myFirstVar" b="mySecondVar" operand="==">
+			<true>
+				<state action="RUN"/>
+			</true>
+			<false>
+				<!-- Check whether a variable is < the given value
+					Stored and executed in order of max.value
+				-->
+				<range var="aVar">
+					<max value="1">
+						<state action="RUN"/>
+					</max>
+					<max value="3">
+						<state action="RUN"/>
+					</max>
+					<!-- To be called in event-->
+					<default>
+						<state action="RUN"/>
+					</default>
+				</range>
+				
+			</false>
+		</if>
+	</Decision>
+</Agent>

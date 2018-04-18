@@ -33,7 +33,7 @@ public class NeatController
 	/// <summary>
 	/// What folder to save/load data from
 	/// </summary>
-	public static string dataFolder = "Neat/Collections/";
+	public static string dataFolder = "AI/Neat/Collections/";
 
 
 	/// <summary>
