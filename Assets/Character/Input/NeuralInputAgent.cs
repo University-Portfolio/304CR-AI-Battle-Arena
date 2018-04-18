@@ -110,13 +110,13 @@ public class NeuralInputAgent : MonoBehaviour
 		// Sheild stun
 		networkInput[ResolutionInputCount + 2] = character.NormalizedShieldStunTime * 2.0f - 1.0f;
 		// Stage Size
-		networkInput[ResolutionInputCount + 3] = (GameMode.Main.stage.currentSize / GameMode.Main.stage.DefaultSize) * 2.0f - 1.0f;
+		networkInput[ResolutionInputCount + 3] = (GameMode.main.stage.currentSize / GameMode.main.stage.DefaultSize) * 2.0f - 1.0f;
 		// Rotation Sin
 		networkInput[ResolutionInputCount + 4] = Mathf.Cos(character.directionAngle);
 		// Rotation Cos
 		networkInput[ResolutionInputCount + 5] = Mathf.Sin(character.directionAngle);
 		// Alive populations
-		networkInput[ResolutionInputCount + 6] = ((float)GameMode.Main.aliveCount / (float)GameMode.Main.CharacterCount) * 2.0f - 1.0f;
+		networkInput[ResolutionInputCount + 6] = ((float)GameMode.main.aliveCount / (float)GameMode.main.characterCount) * 2.0f - 1.0f;
 		// Bias input node
 		networkInput[ResolutionInputCount + 7] = 1.0f;
 		// Bias input node
@@ -173,7 +173,7 @@ public class NeuralInputAgent : MonoBehaviour
 	/// </summary>
 	void RenderVision()
 	{
-		StageController stage = GameMode.Main.stage;
+		StageController stage = GameMode.main.stage;
 		Vector3 stageCentre = stage.transform.position;
 		float stageSize = stage.currentSize + 0.25f;
 
@@ -198,7 +198,7 @@ public class NeuralInputAgent : MonoBehaviour
 			}
 
 		// Display characters
-		foreach (Character other in GameMode.Main.characters)
+		foreach (Character other in GameMode.main.characters)
 		{
 			if (other.IsDead)
 				continue;

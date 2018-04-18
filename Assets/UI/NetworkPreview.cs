@@ -71,8 +71,8 @@ public class NetworkPreview : MonoBehaviour
     [SerializeField]
 	private RectTransform geneSection;
 
-	private Dictionary<int, NetworkNode> nodes;
-	private Dictionary<int, NetworkGene> genes;
+	private Dictionary<int, NetworkNode> nodes = new Dictionary<int, NetworkNode>();
+	private Dictionary<int, NetworkGene> genes = new Dictionary<int, NetworkGene>();
 
 
 
@@ -89,9 +89,6 @@ public class NetworkPreview : MonoBehaviour
         populationTexture.filterMode = FilterMode.Point;
         populationTexture.wrapMode = TextureWrapMode.Clamp;
         populationDisplay.texture = populationTexture;
-
-        nodes = new Dictionary<int, NetworkNode>();
-		genes = new Dictionary<int, NetworkGene>();
 	}
 	
 	void Update ()
@@ -102,7 +99,7 @@ public class NetworkPreview : MonoBehaviour
             RenderPopulation();
 
 
-            roundText.text = GameMode.Main.currentRound + "/" + GameMode.Main.TotalRounds;
+            roundText.text = GameMode.main.currentRound + "/" + GameMode.main.TotalRounds;
 			fitnessText.text = "" + currentTarget.network.fitness;
 			generationText.text = "" + currentTarget.network.controller.generationCounter;
             killsText.text = "" + currentTarget.killCount;

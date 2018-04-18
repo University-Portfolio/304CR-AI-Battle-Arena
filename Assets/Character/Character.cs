@@ -6,6 +6,7 @@ using UnityEngine;
 public class Character : MonoBehaviour
 {
     public CharacterController characterController { get; private set; }
+	public bool IsPlayer { get { return GetComponent<PlayerInput>() != null; } }
 
 	[Header("Objects")]
 	[SerializeField]
@@ -104,6 +105,11 @@ public class Character : MonoBehaviour
 	public int blockCount { get; private set; }
 	[System.NonSerialized]
 	public int roundWinCount;
+
+	/// <summary>
+	/// Total score to display for this character
+	/// </summary>
+	public int TotalScore { get { return roundWinCount * 20 + killCount * 5 + blockCount; } }
 
 
 	void Start ()
@@ -314,10 +320,12 @@ public class Character : MonoBehaviour
 		gameObject.SetActive(true);
 		isAlive = true;
 		characterController.enabled = true;
+		currentShield.gameObject.SetActive(false);
 
 		actionTimer = 0.0f;
 		currentAction = Action.None;
 		arrowTimer = 0.0f;
+		shieldTimer = 0.0f;
 	}
 
 

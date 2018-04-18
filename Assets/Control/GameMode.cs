@@ -8,22 +8,27 @@ using UnityEngine;
 /// </summary>
 public class GameMode : MonoBehaviour
 {
-	public static GameMode Main { get; private set; }
+	public static GameMode main { get; private set; }
 
 	[SerializeField]
 	private Character defaultCharacter;
-	[SerializeField]
-	private int characterCount = 32;
-	public int CharacterCount { get { return characterCount; } }
+	
 	
 	public StageController stage { get; private set; }
 	public Character[] characters { get; private set; }
+
+	public bool playerExists { get; private set; }
+	public int characterCount { get; private set; }
+	public int neuralAgentCount { get; private set; }
 
 	[SerializeField]
 	private int rounds = 5;
 	public int currentRound { get; private set; }
 	public int aliveCount { get; private set; }
 	private float nextRoundCooldown;
+
+	public bool isTrainingGame { get; private set; }
+	public bool isGameActive { get; private set; }
 
 	public bool IsGameFinished { get { return currentRound > rounds; } }
 	public int TotalRounds { get { return rounds; } }
@@ -32,8 +37,8 @@ public class GameMode : MonoBehaviour
 	void Start ()
 	{
 		Debug.Log("GameMode created");
-		if (Main == null)
-			Main = this;
+		if (main == null)
+			main = this;
 		else
 		{
 			Debug.LogError("Multiple GameModes have been created");
@@ -47,14 +52,29 @@ public class GameMode : MonoBehaviour
 			Debug.LogError("GameMode requires for a StageController to exist");
 
 
-		characters = new Character[characterCount];
+		characters = null;
+		isGameActive = false;
+		isTrainingGame = false;
+
+		StartGame(32, true, 5);
+		//StartTraining(32);
 	}
 	
 	void Update ()
 	{
-		// Game over
-		if (IsGameFinished)
+		if (!isGameActive)
 			return;
+
+		// Game Over
+		if (IsGameFinished)
+		{
+			if (isTrainingGame)
+				NeuralController.main.OnTrainingSessionEnd();
+
+			ResetGame();
+			//isGameActive = false;
+			return;
+		}
 
 		// Count down to next round
 		if (nextRoundCooldown != 0.0f)
@@ -99,41 +119,52 @@ public class GameMode : MonoBehaviour
 	/// Create objects for all the characters
 	/// </summary>
 	/// <param name="spawnPlayer">Should a player be spawned</param>
-	private void SpawnCharacters(bool spawnPlayer)
+	private void SpawnCharacters()
 	{
 		// Cleanup old characters
-		foreach (Character character in characters)
-			if (character != null)
-				Destroy(character.gameObject);
+		if(characters != null)
+			foreach (Character character in characters)
+				if (character != null)
+					Destroy(character.gameObject);
 
 
 		// Spawn new collections
 		Debug.Log("Spawning " + characterCount + " characters");
+		characters = new Character[characterCount];
+
 		for (int i = 0; i < characterCount; ++i)
+			characters[i] = Instantiate(defaultCharacter);
+
+
+		// Add player
+		if (playerExists)
+			characters[0].gameObject.AddComponent<PlayerInput>();
+
+
+		// Add agents
+		int totalAgents = playerExists ? characterCount - 1 : characterCount;
+		NeuralInputAgent[] neuralAgents = new NeuralInputAgent[neuralAgentCount];
+
+		for (int i = 0; i < totalAgents; ++i)
 		{
-			float angle = (i / (float)characterCount) * Mathf.PI * 2.0f;
-
-			characters[i] = Instantiate(defaultCharacter.gameObject,
-				stage.transform.position + new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * (stage.DefaultSize - 3) + new Vector3(0, 1, 0),
-				Quaternion.identity,
-				null
-			).GetComponent<Character>();
-
-			characters[i].directionAngle = angle + Mathf.PI;
-
-			if (spawnPlayer && i == 0)
-				characters[i].gameObject.AddComponent<PlayerInput>();
-			else
+			int index = playerExists ? i + 1 : i;
+			if (i < neuralAgentCount)
 			{
-				characters[i].gameObject.AddComponent<NeuralInputAgent>();
+				NeuralInputAgent agent = characters[index].gameObject.AddComponent<NeuralInputAgent>();
+				neuralAgents[i] = agent;
 			}
+			else
+				characters[index].gameObject.AddComponent<TreeInput>();
 		}
+
+		PlaceCharactersInRing(); // Place characters
+		NeuralController.main.AttachNetworks(neuralAgents); // Attach networks to nn agents
 	}
 
 	/// <summary>
-	/// Respawn the current character (Don't recreate the objects)
+	/// Moves all characters into a ring
 	/// </summary>
-	private void RespawnCharacters()
+	private void PlaceCharactersInRing()
 	{
 		// Shuffle order
 		List<Character> oldOrder = new List<Character>(characters);
@@ -151,19 +182,97 @@ public class GameMode : MonoBehaviour
 
 			characters[i].transform.position = stage.transform.position + new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * (stage.DefaultSize - 3) + new Vector3(0, 1, 0);
 			characters[i].directionAngle = angle + Mathf.PI;
-			characters[i].Respawn();
 		}
 	}
 
 	/// <summary>
-	/// Restarts the entire game
+	/// Respawn the current character (Don't recreate the objects)
 	/// </summary>
-	/// <param name="spawnPlayer">Should we spawn a player</param>
-	public void ResetGame(bool spawnPlayer = false)
+	private void RespawnCharacters()
 	{
-		Debug.Log("Reseting game");
+		// Force everything to respawn
+		foreach (Character character in characters)
+			character.Respawn();
+
+		PlaceCharactersInRing();
+
+		// Reset observer
+		CharacterObserver observer = FindObjectOfType<CharacterObserver>();
+		observer.SelectNewTarget();
+	}
+
+
+	/// <summary>
+	/// Start a new game
+	/// </summary>
+	/// <param name="totalCharacters">How many characters are going to be spawned</param>
+	/// <param name="spawnPlayer">Should the player be spawned in too?</param>
+	/// <param name="neuralCount">How many neural network agents to spawn</param>
+	public void StartGame(int totalCharacters, bool spawnPlayer, int neuralCount)
+	{
+		Debug.Log("Starting game");
 		currentRound = 1;
+		isGameActive = true;
+		isTrainingGame = false;
+
+		// Set agent values correctly to avoid overflows
+		playerExists = spawnPlayer;
+		characterCount = System.Math.Max(2, totalCharacters);
+		int totalAgents = spawnPlayer ? characterCount - 1 : characterCount;
+		neuralAgentCount = System.Math.Min(totalAgents, neuralCount);
+
+		NeuralController.main.InitialiseController(neuralAgentCount);
 		stage.ResetStage();
-		SpawnCharacters(spawnPlayer);
+		SpawnCharacters();
+	}
+
+	/// <summary>
+	/// Starts the game in training mode
+	/// </summary>
+	/// <param name="totalCharacters">How many characters are going to be spawned</param>
+	public void StartTraining(int totalCharacters)
+	{
+		Debug.Log("Starting Training");
+		currentRound = 1;
+		isGameActive = true;
+		isTrainingGame = true;
+
+		playerExists = false;
+		characterCount = totalCharacters;
+		neuralAgentCount = totalCharacters;
+
+		NeuralController.main.InitialiseController(neuralAgentCount);
+		stage.ResetStage();
+		SpawnCharacters();
+	}
+
+	/// <summary>
+	/// Restarts the gamemode with the current settings
+	/// </summary>
+	public void ResetGame()
+	{
+		Debug.Log("Resetting game");
+		currentRound = 1;
+		isGameActive = true;
+
+		stage.ResetStage();
+		SpawnCharacters();
+	}
+
+	/// <summary>
+	/// Close the game, no matter what state it's in
+	/// </summary>
+	public void CancelGame()
+	{
+		Debug.Log("Cancelling game");
+
+		isGameActive = false;
+		isTrainingGame = false;
+		stage.ResetStage();
+
+		// Cleanup old characters
+		foreach (Character character in characters)
+			if (character != null)
+				Destroy(character.gameObject);
 	}
 }

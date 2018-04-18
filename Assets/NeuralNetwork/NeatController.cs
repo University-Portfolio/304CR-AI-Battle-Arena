@@ -29,7 +29,7 @@ public class NeatController
 	/// <summary>
 	/// The name of this collection of networks
 	/// </summary>
-	public readonly string collectionName;
+	public string collectionName { get; private set; }
 	/// <summary>
 	/// What folder to save/load data from
 	/// </summary>

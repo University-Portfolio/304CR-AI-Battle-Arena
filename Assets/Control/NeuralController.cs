@@ -16,6 +16,11 @@ public class NeuralController : MonoBehaviour
 	public NeatController neatController { get; private set; }
 
 	/// <summary>
+	/// The current population size that will be used
+	/// </summary>
+	public int populationSize { get; private set; }
+
+	/// <summary>
 	/// Weight for survival time on network fitness
 	/// </summary>
 	public float survialWeight = 1.0f;
@@ -50,47 +55,64 @@ public class NeuralController : MonoBehaviour
 			return;
 		}
 		
+
+		// Load NEAT controller
 		neatController = new NeatController("AiArena");
 		if (!neatController.LoadNeatSettings())
 		{
 			Debug.Log("Using default NEAT settings");
 			neatController.WriteNeatSettings();
 		}
-		NeatNetwork[] population = neatController.GenerateBasePopulation(GameMode.Main.CharacterCount, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
-
 
 		// Use controller's runtime to start from
 		runTime = neatController.runTime;
-
-		GameMode.Main.ResetGame();
-		CreateAgentsFromNetworks(population);
 	}
 	
-	// Update is called once per frame
 	void Update ()
 	{
-		runTime += Time.deltaTime;
-		neatController.runTime = (int)runTime;
-
-		// Start the next generation of nets
-		if (GameMode.Main.IsGameFinished)
+		// Increment training time
+		if (GameMode.main.isTrainingGame)
 		{
-			Debug.Log("Breeding next generation");
-			NeatNetwork[] population = neatController.BreedNextGeneration();
-
-			GameMode.Main.ResetGame();
-			CreateAgentsFromNetworks(population);
+			runTime += Time.deltaTime;
+			neatController.runTime = (int)runTime;
 		}
 	}
 
-	private void CreateAgentsFromNetworks(NeatNetwork[] population)
+	/// <summary>
+	/// Called when a training session successfully completes
+	/// </summary>
+	public void OnTrainingSessionEnd()
 	{
+		Debug.Log("Breeding next generation");
+		NeatNetwork[] population = neatController.BreedNextGeneration();
+	}
+
+	/// <summary>
+	/// Create networks
+	/// </summary>
+	/// <param name="count"></param>
+	public void InitialiseController(int count)
+	{
+		populationSize = count;
+		NeatNetwork[] population = neatController.GenerateBasePopulation(GameMode.main.characterCount, NeuralInputAgent.InputCount, NeuralInputAgent.OutputCount, 1);
+
+		// Use controller's runtime to start from
+		runTime = neatController.runTime;
+	}
+
+	/// <summary>
+	/// Attach the networks to these characters
+	/// </summary>
+	/// <param name="targets">All the agents to apply networks to</param>
+	public void AttachNetworks(NeuralInputAgent[] targets)
+	{
+		// Store networks older than 1, to give cosmetics
 		List<NeuralInputAgent> oldAgents = new List<NeuralInputAgent>();
 
-		for (int i = 0; i < GameMode.Main.CharacterCount; ++i)
+		for (int i = 0; i < populationSize; ++i)
 		{
-			NeuralInputAgent agent = GameMode.Main.characters[i].GetComponent<NeuralInputAgent>();
-			agent.AssignNetwork(population[i]);
+			NeuralInputAgent agent = targets[i];
+			agent.AssignNetwork(neatController.population[i]);
 
 			if (agent.network.age != 0)
 			{
@@ -98,6 +120,7 @@ public class NeuralController : MonoBehaviour
 				agent.GetComponent<CharacterAccessories>().GrowHair(agent.network.age);
 			}
 		}
+		
 
 		// Sort surviving agents so highest fitness is firsts
 		oldAgents.Sort((a, b) =>
