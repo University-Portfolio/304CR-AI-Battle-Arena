@@ -60,8 +60,8 @@ public class ArrowShield : MonoBehaviour
 		if (arrow != null)
 		{
 			owner.OnGoodBlock(arrow);
-			gameObject.SetActive(false);
-			IsActive = false;
+			//gameObject.SetActive(false);
+			//IsActive = false;
 			Destroy(collider.gameObject);
 		}
 	}

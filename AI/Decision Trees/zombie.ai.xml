@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Agent>
+	<Profile weight="10" title="Zombie">
+		<var name="Colour.R">0.329</var>
+		<var name="Colour.G">0.773</var>
+		<var name="Colour.B">0.443</var>
+		
+		<var name="MoveSpeed">1</var>
+		<var name="TurnSpeed">0.75</var>
+		<var name="AttackAccuracy">0.1</var>
+		
+		<var name="ShootDist">2</var>
+	</Profile>
+	
+	<Profile weight="1" title="Boss Zombie">
+		<var name="Colour.R">0.929</var>
+		<var name="Colour.G">0.773</var>
+		<var name="Colour.B">0.243</var>
+		
+		<var name="MoveSpeed">1</var>
+		<var name="TurnSpeed">1</var>
+		<var name="AttackAccuracy">0.1</var>
+		
+		<var name="ShootDist">3.5</var>
+	</Profile>
+	
+	<!-- The actual descision tree structure that will be used
+	-->
+	<Decision>
+		<!-- Always attack -->
+		<state action="Attack"/>	
+	</Decision>
+</Agent>

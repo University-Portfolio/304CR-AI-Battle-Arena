@@ -41,6 +41,7 @@ public class TreeInputAgent : MonoBehaviour
 	private float moveSpeed;
 	private float turnSpeed;
 	private float attackAccuracy;
+	private float attackDistance;
 
 	private float nearCharacterRange;
 
@@ -170,7 +171,6 @@ public class TreeInputAgent : MonoBehaviour
 	}
 
 		
-
 	void ActionSkirt()
 	{
 		// Prevent falling off edge
@@ -183,7 +183,6 @@ public class TreeInputAgent : MonoBehaviour
 				character.Move(-moveSpeed);
 		}
 	}
-
 
 	void ActionFlee()
 	{
@@ -211,7 +210,6 @@ public class TreeInputAgent : MonoBehaviour
 			character.Move(moveSpeed);
 	}
 
-
 	void ActionDefend()
 	{
 		if (closestArrow == null)
@@ -237,11 +235,22 @@ public class TreeInputAgent : MonoBehaviour
 		{
 			// Calculate the expected location
 			Vector3 expected = closestCharacter.transform.position + closestCharacter.trueVelocity * Time.deltaTime;
+			float distance = Vector3.Distance(character.transform.position, expected);
 
 			float confidence = FaceLocation(expected);
 
-			if (confidence > 0.85f * attackAccuracy)
-				character.Fire();
+			if (distance <= attackDistance)
+			{
+				// Shoot target
+				if (confidence > 0.85f * attackAccuracy)
+					character.Fire();
+			}
+			else
+			{
+				// Move closer to target
+				if (confidence > 0.25f)
+					character.Move(moveSpeed);
+			}
 		}
 	}
 
@@ -299,6 +308,10 @@ public class TreeInputAgent : MonoBehaviour
 		if (!tree.agentProfile.HasVar("NearRange"))
 			tree.agentProfile.SetVar("NearRange", 7.0f);
 		nearCharacterRange = tree.agentProfile.GetVar("NearRange");
+
+		if (!tree.agentProfile.HasVar("ShootDist"))
+			tree.agentProfile.SetVar("ShootDist", 10.0f);
+		attackDistance = tree.agentProfile.GetVar("ShootDist");
 
 		return true;
 	}

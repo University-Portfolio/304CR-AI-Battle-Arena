@@ -1,52 +1,84 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--
-	All profiles and trees work by calling accessing and compaing float variables
-	-Variables are case sensity
-	-Each Profile has it's own set of variables
-	-In the event a profile has the same variable as a global var, the global var is prefered
-	
-	Avaliable Global Vars:
-		-StageSize		<- The radius of the stage
-		-AliveCount		<- How many other players are alive currently
-		-ActionEnum		<- The current action being performed
-			-0: None
-			-1: Shooting
-			-2: Shielding
-		-ActionCooldown	<- How long until the current action is over
-		
-	Avaliable Actions:
-		-Flee			<- Attempt to run away from nearby characters
-		-Skirt			<- Attempt to stay as close to the edge as possible
-		-Defend			<- Attempt to survive in the local area (Avoid moving)
-		-Attack			<- Attempt to hunt down and kill others
-		
-	Supported Profile Vars:
-
--->
 <Agent>
-	<Profile weight="100">
-		<var name="MyVar">100</var>
-		<var name="MyOtherVar">100</var>
+	<Profile weight="10" title="Easy">
+		<var name="Colour.R">0</var>
+		<var name="Colour.G">1</var>
+		<var name="Colour.B">0</var>
+		
+		<var name="MoveSpeed">0.25</var>
+		<var name="TurnSpeed">0.25</var>
+		<var name="AttackAccuracy">0.1</var>
+		
+		<var name="NearRange">16</var>
+		<var name="SkirtDist">10</var>
+		<var name="AttackDist">6</var>
+		<var name="ShootDist">5</var>
+		<var name="BlockDist">16</var>
 	</Profile>
-	<Profile weight="100">
-		<var name="MyVar">100</var>
-		<var name="MyOtherVar">100</var>
+	
+	<Profile weight="5" title="Medium">
+		<var name="Colour.R">1</var>
+		<var name="Colour.G">1</var>
+		<var name="Colour.B">0</var>
+		
+		<var name="MoveSpeed">0.5</var>
+		<var name="TurnSpeed">0.4</var>
+		<var name="AttackAccuracy">0.5</var>
+		
+		<var name="NearRange">10</var>
+		<var name="SkirtDist">3</var>
+		<var name="AttackDist">7</var>
+		<var name="ShootDist">6</var>
+		<var name="BlockDist">13</var>
+	</Profile>
+	
+	<Profile weight="2" title="Hard">
+		<var name="Colour.R">1</var>
+		<var name="Colour.G">0</var>
+		<var name="Colour.B">0</var>
+		
+		<var name="MoveSpeed">1</var>
+		<var name="TurnSpeed">1</var>
+		<var name="AttackAccuracy">1</var>
+		
+		<var name="NearRange">10</var>
+		<var name="SkirtDist">4</var>
+		<var name="AttackDist">9</var>
+		<var name="ShootDist">8</var>
+		<var name="BlockDist">11</var>
 	</Profile>
 	
 	<!-- The actual descision tree structure that will be used
 	-->
 	<Decision>
-		<range var="StageSize" type="lessThan">
-			<limit value="10">
-				<state action="Flee"/>
-			</limit>
-			<limit value="27">
+		<!-- Ride the edge -->
+		<if lhs="EdgeDist" rhs="SkirtDist" operand="lessThanEqual">
+			<true>
 				<state action="Skirt"/>
-			</limit>
-			<!-- To be called in event nothing above is valid -->
-			<default>
-				<state action="Attack"/>
-			</default>
-		</range>
+			</true>
+			<false>		
+			
+				<!-- Attempt to avoid incoming arrows -->
+				<if lhs="ClosestArrow" rhs="BlockDist" operand="lessThanEqual">
+					<true>
+						<state action="Defend"/>
+					</true>
+					<false>
+					
+						<!-- Attack close enemy or just flee to safer location -->
+						<if lhs="ClosestEnemy" rhs="AttackDist" operand="lessThanEqual">
+							<true>
+								<state action="Attack"/>
+							</true>
+							<false>
+								<state action="Flee"/>
+							</false>
+						</if>
+						
+					</false>
+				</if>
+			
+			</false>
+		</if>		
 	</Decision>
 </Agent>

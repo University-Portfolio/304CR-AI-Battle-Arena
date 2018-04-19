@@ -6,26 +6,39 @@
 	-In the event a profile has the same variable as a global var, the global var is prefered
 	
 	Avaliable Global Vars:
-		-StageSize		<- The radius of the stage
-		-AliveCount		<- How many other players are alive currently
 		-ActionEnum		<- The current action being performed
 			-0: None
 			-1: Shooting
 			-2: Shielding
 		-ActionCooldown	<- How long until the current action is over
 		
+		-StageSize		<- The radius of the stage
+		-AliveCount		<- How many other players are alive currently
+		-CentreDist		<- How far away from the centre of the stage
+		-EdgeDist		<- How far away from the edge of the stage
+		
+		-ClosestEnemy	<- How far away the closest enemy is
+		-ClosestArrow	<- How far away the closest arrow is
+		-NearbyEnemies	<- How many enemies are within 'NearRange;
+		
+		
 	Avaliable Actions:
 		-Flee			<- Attempt to run away from nearby characters
 		-Skirt			<- Attempt to stay as close to the edge as possible
-		-Defend			<- Attempt to survive in the local area (Avoid moving)
+		-Defend			<- Attempt to block or run away from arrows
 		-Attack			<- Attempt to hunt down and kill others
 		
 	Supported Profile Vars:
-
+		-Colour.<R/G/B>			<- The colour this agent should be	
+		-MoveSpeed				<- How fast this agent will move (Expected between 0.0-1.0)
+		-TurnSpeed				<- How fast this agent will turn (Expected between 0.0-1.0)
+		-AttackAccuracy			<- How accurate the agent will get when lining up a shot (Expected between 0.0-1.0)
+		-ShootDist				<- How close does the agent have to be to shoot
+		-NearRange				<- If another character is less than this distance to the player, they are considered to be close
 -->
 <Agent>
 	<!-- Profiles a variable stores for a single agent 
-		Profile will be assigned based on weight
+		Profile will be assigned randomly based on weight
 	-->
 	<Profile weight="100">
 		<var name="MyVar">100</var>
@@ -37,20 +50,31 @@
 	</Profile>
 	
 	<!-- The actual descision tree structure that will be used
+		If the decision tree references a value that doesn't exist it will default to 0.0
 	-->
 	<Decision>
 		<!-- A condition based boolean decision which compares two variables
 			Or hard coded floats
+			
+			operands:
+				-equals
+				-notEquals
+				-greaterThan
+				-lessThan
+				-greaterThanEqual
+				-lessThanEqual
 		-->
-		<if lhs="myFirstVar" rhs="mySecondVar" operand="==">
+		<if lhs="myFirstVar" rhs="mySecondVar" operand="equals">
 			<true>
 				<state action="Flee"/>
 			</true>
 			<false>
 				<!-- Check whether a variable is < or > the given value
-					Stored and executed in order of max.value
+					Stored and executed in order of limit.value
+					i.e. if type is lessThan and values are 1, 5, 3, default they will be checked in order 1, 3, 5, default
+					i.e. if type is greaterThan and values are 1, 5, 3, default they will be checked in order 5, 3, 1, default
 				-->
-				<range var="aVar" type=">">
+				<range var="aVar" type="greaterThan">
 					<limit value="1">
 						<state action="Flee"/>
 					</limit>

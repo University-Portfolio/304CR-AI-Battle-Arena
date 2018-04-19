@@ -1504,7 +1504,7 @@ MonoBehaviour:
   turnSpeed: 7
   shootDuration: 0.9
   shieldStun: 0.5
-  shieldDuration: 3.5
+  shieldDuration: 2.5
 --- !u!114 &114766526707172106
 MonoBehaviour:
   m_ObjectHideFlags: 1
