@@ -44,7 +44,7 @@ public class VariableCollection
 			if (float.TryParse(name, out result))
 				return result;
 
-			Debug.LogWarning("Name variable '" + name + "' can be found for this variable collection");
+			//Debug.LogWarning("Name variable '" + name + "' can be found for this variable collection");
 			return defaultValue;
 		}
 	}

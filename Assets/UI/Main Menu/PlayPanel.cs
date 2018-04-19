@@ -117,7 +117,7 @@ public class PlayPanel : MonoBehaviour
 	{
 		if (spawnPlayer.isOn)
 		{
-			totalCount.SetRange(2, MaxCharacterCount - 1);
+			totalCount.SetRange(1, MaxCharacterCount - 1);
 			OnTotalCountChange();
 		}
 		else

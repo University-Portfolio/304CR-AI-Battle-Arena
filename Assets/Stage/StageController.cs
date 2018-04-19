@@ -8,6 +8,7 @@ public class StageController : MonoBehaviour
 	private float startSize = 10.0f;
 	[SerializeField]
 	private float decayRate = 1.0f;
+	public float DecayRate { get { return decayRate; } }
 
 	/// <summary>
 	/// The small amount of delay before the ring starts to shrink

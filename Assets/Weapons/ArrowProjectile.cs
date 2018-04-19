@@ -16,6 +16,8 @@ public class ArrowProjectile : MonoBehaviour
 	private Character owner;
     public bool inFlight { get; private set; }
 
+	public Vector3 Direction { get { return body.velocity.normalized; } }
+
 	/// <summary>
 	/// How long until this arrow is destroyed
 	/// </summary>

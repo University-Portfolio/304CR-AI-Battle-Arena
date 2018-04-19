@@ -80,7 +80,7 @@ public class TreePreview : MonoBehaviour
 				KeyValueText kv = Instantiate(leftColumnDefault, leftColumnDefault.transform.parent);
 				RectTransform trans = kv.GetComponent<RectTransform>();
 
-				trans.position = trans.position + new Vector3(0, -trans.rect.height * i * 1.5f, 0);
+				trans.position = trans.position + new Vector3(0, -trans.rect.height * i * 1.25f, 0);
 
 				kv.Key = pair.Key;
 				kv.Value = "" + pair.Value;
@@ -96,7 +96,7 @@ public class TreePreview : MonoBehaviour
 				KeyValueText kv = Instantiate(rightColumnDefault, rightColumnDefault.transform.parent);
 				RectTransform trans = kv.GetComponent<RectTransform>();
 
-				trans.position = trans.position + new Vector3(0, -trans.rect.height * i * 1.5f, 0);
+				trans.position = trans.position + new Vector3(0, -trans.rect.height * i * 1.25f, 0);
 
 				kv.Key = pair.Key;
 				kv.Value = "" + pair.Value;

@@ -1502,9 +1502,9 @@ MonoBehaviour:
   dragFactor: 10
   moveSpeed: 60
   turnSpeed: 7
-  shootDuration: 0.6
-  shieldStun: 1
-  shieldDuration: 4
+  shootDuration: 0.9
+  shieldStun: 0.5
+  shieldDuration: 3.5
 --- !u!114 &114766526707172106
 MonoBehaviour:
   m_ObjectHideFlags: 1

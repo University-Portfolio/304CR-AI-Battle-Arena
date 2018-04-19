@@ -15,6 +15,7 @@ public class TreeInputAgent : MonoBehaviour
 	public static string dataFolder = "AI/Decision Trees/";
 
 	public Character character { get; private set; }
+	public Color colour { get; private set; }
 
 
 	/// <summary>
@@ -34,10 +35,29 @@ public class TreeInputAgent : MonoBehaviour
 	public DecisionTree tree { get; private set; }
 
 
+	/// <summary>
+	/// Cached Profile vars
+	/// </summary>
+	private float moveSpeed;
+	private float turnSpeed;
+	private float attackAccuracy;
+
+	private float nearCharacterRange;
+
+	/// <summary>
+	/// AI Frame vars
+	/// </summary>
+	private float distanceFromCentre;
+	private float distanceFromEdge;
+	private Character closestCharacter;
+	private List<Character> nearbyCharacters = new List<Character>();
+	private ArrowProjectile closestArrow;
+
+
 	void Start()
 	{
 		character = GetComponent<Character>();
-		character.SetColour(new Color(0.4f, 0.4f, 0.4f));
+		character.SetColour(colour, false);
 
 		// Offset agents
 		decisionTimer = UnityEngine.Random.value * tickRate;
@@ -69,31 +89,160 @@ public class TreeInputAgent : MonoBehaviour
 		tree.SetGlobalVar("AliveCount", GameMode.main.aliveCount);
 		tree.SetGlobalVar("ActionEnum", (float)character.currentAction);
 		tree.SetGlobalVar("ActionCooldown", character.actionTimer);
+
+		distanceFromCentre = Vector3.Distance(GameMode.main.stage.transform.position, character.transform.position);
+		distanceFromEdge = Mathf.Max(0, GameMode.main.stage.currentSize - distanceFromCentre);
+
+		tree.SetGlobalVar("CentreDist", distanceFromCentre);
+		tree.SetGlobalVar("EdgeDist", distanceFromEdge);
+
+
+		float closestCharDist = 99999.0f;
+		closestCharacter = null;
+
+		float closestArrowDist = 99999.0f;
+		closestArrow = null;
+
+		nearbyCharacters.Clear();
+
+		foreach (Character other in GameMode.main.characters)
+			if (other != character)
+			{
+				if (other.isAlive)
+				{
+					float distance = Vector3.Distance(other.transform.position, character.transform.position);
+
+					// This is the closest char
+					if (closestCharacter == null || distance < closestCharDist)
+					{
+						closestCharacter = other;
+						closestCharDist = distance;
+					}
+
+					// Player is nearby
+					if (distance < nearCharacterRange)
+						nearbyCharacters.Add(other);
+				}
+
+				if (other.currentProjectile != null)
+				{
+					float distance = Vector3.Distance(other.currentProjectile.transform.position, character.transform.position);
+
+					// This is the closest arrow
+					if (closestArrow == null || distance < closestArrowDist)
+					{
+						closestArrow = other.currentProjectile;
+						closestArrowDist = distance;
+					}
+				}
+			}
+
+
+		tree.SetGlobalVar("ClosestEnemy", closestCharDist);
+		tree.SetGlobalVar("ClosestArrow", closestArrowDist);
+		tree.SetGlobalVar("NearbyEnemies", nearbyCharacters.Count);
 	}
+
+	/// <summary>
+	/// Move the character to face this location
+	/// </summary>
+	/// <param name="location">The location to look to</param>
+	/// <param name="desiredConfidence">The desired condifdence to turn until</param>
+	/// <returns>The confidence the agent has about it's current direction</returns>
+	private float FaceLocation(Vector3 location, float desiredConfidence = 0.999f)
+	{
+		// Turn to put back to centre
+		Vector3 toLocation = (location - character.transform.position).normalized;
+
+		float forwardDot = Vector3.Dot(character.transform.forward, toLocation);
+		float rightDot = Vector3.Dot(character.transform.right, toLocation);
+		
+		// Turn to centre
+		if(forwardDot < desiredConfidence)
+		{
+			if (rightDot > 0)
+				character.Turn(turnSpeed);
+			else
+				character.Turn(-turnSpeed);
+		}
+
+		return forwardDot;
+	}
+
+		
 
 	void ActionSkirt()
 	{
-		character.Move(0.1f);
-		//character.Turn(0.0f);
-
-		//if (true)
-		//	character.Fire();
-		//if (true)
-		//	character.Block();
+		// Prevent falling off edge
+		float confidence = FaceLocation(GameMode.main.stage.transform.position);
+		if (distanceFromCentre > 2)
+		{
+			if (confidence > 0.25f)
+				character.Move(moveSpeed);
+			else if (confidence < -0.25f)
+				character.Move(-moveSpeed);
+		}
 	}
+
 
 	void ActionFlee()
 	{
-		character.Move(-1.0f);
+		// Attempt to move away from the masses
+		Vector3 centre = new Vector3();
+		int count = 0;
+
+		foreach (Character other in nearbyCharacters)
+			if (other.isAlive)
+			{
+				centre += other.transform.position;
+				count++;
+			}
+
+		if (count == 0)
+			return;
+		centre /= count;
+
+
+		// Move away from group
+		float confidence = FaceLocation(centre);
+		if (confidence > 0.25f)
+			character.Move(-moveSpeed);
+		else if (confidence < -0.25f)
+			character.Move(moveSpeed);
 	}
+
 
 	void ActionDefend()
 	{
-	}
+		if (closestArrow == null)
+			return;
+
+		// Attempt to run away from nearest arrow
+		Vector3 toArrow = (character.transform.position - closestArrow.transform.position).normalized;
+		float arrowDot = Vector3.Dot(closestArrow.Direction, toArrow);
+		
+		// Is probably going to hit
+		if (arrowDot >= 0.8)
+			character.Block();
+
+		// Try to run away from arrow
+		Vector3 away = Vector3.Cross(closestArrow.Direction, toArrow);
+		FaceLocation(character.transform.position + away);
+		character.Move(arrowDot > 0 ? -moveSpeed : moveSpeed);
+	}	
 
 	void ActionAttack()
 	{
-		character.Fire();
+		if (closestCharacter != null && closestCharacter.isAlive)
+		{
+			// Calculate the expected location
+			Vector3 expected = closestCharacter.transform.position + closestCharacter.trueVelocity * Time.deltaTime;
+
+			float confidence = FaceLocation(expected);
+
+			if (confidence > 0.85f * attackAccuracy)
+				character.Fire();
+		}
 	}
 
 	/// <summary>
@@ -117,6 +266,39 @@ public class TreeInputAgent : MonoBehaviour
 			Debug.LogWarning("Cannot load tree '" + dataFolder + name + "'");
 			return false;
 		}
+
+		// Add default vars
+		float r, g, b;
+
+		if (!tree.agentProfile.HasVar("Colour.R"))
+			tree.agentProfile.SetVar("Colour.R", 0.4f);
+		r = tree.agentProfile.GetVar("Colour.R");
+
+		if (!tree.agentProfile.HasVar("Colour.G"))
+			tree.agentProfile.SetVar("Colour.G", 0.4f);
+		g = tree.agentProfile.GetVar("Colour.G");
+
+		if (!tree.agentProfile.HasVar("Colour.B"))
+			tree.agentProfile.SetVar("Colour.B", 0.4f);
+		b = tree.agentProfile.GetVar("Colour.B");
+		colour = new Color(r, g, b);
+
+
+		if (!tree.agentProfile.HasVar("MoveSpeed"))
+			tree.agentProfile.SetVar("MoveSpeed", 0.25f);
+		moveSpeed = tree.agentProfile.GetVar("MoveSpeed");
+
+		if (!tree.agentProfile.HasVar("TurnSpeed"))
+			tree.agentProfile.SetVar("TurnSpeed", 0.1f);
+		turnSpeed = tree.agentProfile.GetVar("TurnSpeed");
+
+		if (!tree.agentProfile.HasVar("AttackAccuracy"))
+			tree.agentProfile.SetVar("AttackAccuracy", 0.1f);
+		attackAccuracy = tree.agentProfile.GetVar("AttackAccuracy");
+
+		if (!tree.agentProfile.HasVar("NearRange"))
+			tree.agentProfile.SetVar("NearRange", 7.0f);
+		nearCharacterRange = tree.agentProfile.GetVar("NearRange");
 
 		return true;
 	}

@@ -35,7 +35,7 @@ public class Character : MonoBehaviour
 	public float shieldStun = 0.5f;
 	[SerializeField]
 	public float shieldDuration = 3.0f;
-
+	
 
 	/// <summary>
 	/// The 2D movement velocity of this object
@@ -333,7 +333,7 @@ public class Character : MonoBehaviour
 		gameObject.SetActive(true);
 		isAlive = true;
 		characterController.enabled = true;
-		currentShield.gameObject.SetActive(false);
+		//currentShield.gameObject.SetActive(false);
 
 		actionTimer = 0.0f;
 		currentAction = Action.None;
@@ -347,11 +347,13 @@ public class Character : MonoBehaviour
 	/// Set the colour for this character
 	/// </summary>
 	/// <param name="colour"></param>
-	public void SetColour(Color colour)
+	public void SetColour(Color colour, bool colourIndicator = true)
 	{
 		// Colour model
 		foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
-			if (!renderer.gameObject.name.EndsWith("(Colourless)"))
+			if (renderer.gameObject.name == "Indicator")
+				renderer.material.color = colourIndicator ? colour : Color.white;
+			else if (!renderer.gameObject.name.EndsWith("(Colourless)"))
 				renderer.material.color = colour;
 
 
