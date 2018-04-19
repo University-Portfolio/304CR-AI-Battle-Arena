@@ -15,8 +15,13 @@ public class VariableCollection
 	/// <summary>
 	/// All the variables which are exposed to this tree
 	/// </summary>
-	private Dictionary<string, float> variables = new Dictionary<string, float>();
+	public Dictionary<string, float> variables { get; private set; }
 
+
+	public VariableCollection()
+	{
+		variables = new Dictionary<string, float>();
+	}
 
 	public bool HasVar(string name)
 	{

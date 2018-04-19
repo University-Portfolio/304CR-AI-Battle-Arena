@@ -159,7 +159,7 @@ public class GameMode : MonoBehaviour
 			}
 			else
 			{
-				TreeInput agent = characters[index].gameObject.AddComponent<TreeInput>();
+				TreeInputAgent agent = characters[index].gameObject.AddComponent<TreeInputAgent>();
 				agent.LoadTree(desiredTreeAiName);
 			}
 		}

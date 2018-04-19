@@ -43,7 +43,7 @@ public class PlayPanel : MonoBehaviour
 	void OnEnable()
 	{
 		existingCollections = NeatController.GetExistingCollections();
-		existingTrees = TreeInput.GetExistingTrees();
+		existingTrees = TreeInputAgent.GetExistingTrees();
 
 		// No collections on disc so cannot load
 		if (existingCollections.Length == 0)

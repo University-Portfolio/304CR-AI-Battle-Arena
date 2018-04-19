@@ -7,7 +7,7 @@ using UnityEngine;
 /// Read in a decision tree structure from an xml file
 /// </summary>
 [RequireComponent(typeof(Character))]
-public class TreeInput : MonoBehaviour
+public class TreeInputAgent : MonoBehaviour
 {
 	/// <summary>
 	/// What folder to save/load data from
@@ -23,7 +23,7 @@ public class TreeInput : MonoBehaviour
 	private float decisionTimer;
 
 	/// <summary>
-	/// How many times to update this tree per second
+	/// How often this agent will update in seconds
 	/// </summary>
 	[SerializeField]
 	private float tickRate = 0.2f;
@@ -31,7 +31,7 @@ public class TreeInput : MonoBehaviour
 	/// <summary>
 	/// The current tree being used
 	/// </summary>
-	private DecisionTree tree;
+	public DecisionTree tree { get; private set; }
 
 
 	void Start()
@@ -45,6 +45,9 @@ public class TreeInput : MonoBehaviour
 
 	void Update()
 	{
+		if (character.IsDead)
+			return;
+
 		if (decisionTimer > 0.0f)
 		{
 			decisionTimer -= Time.deltaTime;

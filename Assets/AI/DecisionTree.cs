@@ -18,11 +18,11 @@ public class DecisionTree
 	/// <summary>
 	/// The agent variables that are currently being used
 	/// </summary>
-	private VariableCollection agentProfile = new VariableCollection();
+	public VariableCollection agentProfile { get; private set; }
 	/// <summary>
 	/// The global variables that are avaliable to all profiles
 	/// </summary>
-	private VariableCollection globalVars = new VariableCollection();
+	public VariableCollection globalVars { get; private set; }
 
 	/// <summary>
 	/// All actions which can be performed by this tree
@@ -38,21 +38,16 @@ public class DecisionTree
 	/// The action to currently execute
 	/// </summary>
 	private ActionCallback currentAction;
-
+	public string currentActionName { get; private set; }
 
 
 	public DecisionTree()
 	{
+		globalVars = new VariableCollection();
+		agentProfile = new VariableCollection();
+		currentActionName = "None";
 	}
-
-	public void DebugMake()
-	{
-		DecisionIf ifDec = new DecisionIf("AliveCount", "32", DecisionIf.Operand.Equals);
-		ifDec.trueDecision = new DecisionState(actionStates["Skirt"]);
-		ifDec.falseDecision = new DecisionState(actionStates["Flee"]);
-		rootDecision = ifDec;
-	}
-	
+		
 	/// <summary>
 	/// Execute the current action
 	/// </summary>
@@ -68,6 +63,14 @@ public class DecisionTree
 	public void Recalculate()
 	{
 		currentAction = rootDecision != null ? rootDecision.Process(globalVars, agentProfile) : null;
+
+		currentActionName = "None";
+		foreach (var pair in actionStates)
+			if (pair.Value == currentAction)
+			{
+				currentActionName = pair.Key;
+				break;
+			}
 	}
 
 	/// <summary>
@@ -102,6 +105,18 @@ public class DecisionTree
 	}
 
 
+	struct ImportProfile
+	{
+		public float weight;
+		public VariableCollection vars;
+
+		public ImportProfile(float weight)
+		{
+			this.weight = weight;
+			vars = new VariableCollection();
+		}
+	}
+
 	/// <summary>
 	/// Read the XML file for a specific tree
 	/// </summary>
@@ -120,6 +135,9 @@ public class DecisionTree
 
 		XmlDocument document = new XmlDocument();
 		document.Load(reader);
+		
+		List<ImportProfile> avaliableCollections = new List<ImportProfile>();
+		float totalWeight = 0.0f;
 
 		// Read document
 		XmlElement root = document.DocumentElement;
@@ -128,8 +146,28 @@ public class DecisionTree
 			// Profile loading - TODO
 			if (child.Name == "Profile")
 			{
-				if(child.HasAttribute("weight"))
-					child.GetAttribute("weight");
+				float weight = 1.0f;
+				if (child.HasAttribute("weight"))
+					float.TryParse(child.GetAttribute("weight"), out weight);
+
+				ImportProfile profile = new ImportProfile(weight);
+				totalWeight += weight;
+
+
+				foreach (XmlElement var in child.ChildNodes)
+				{
+					if(var.Name != "var")
+						Debug.LogError("Profile must only have child nodes of type 'var'");
+					if (!var.HasAttribute("name"))
+						Debug.LogError("Profile.var must have attribute 'name'");
+
+					float value = 0.0f;
+					float.TryParse(var.InnerXml, out value);
+					profile.vars.SetVar(var.GetAttribute("name"), value);
+				}
+
+
+				avaliableCollections.Add(profile);
 			}
 
 			// Load the actual tree
@@ -143,6 +181,33 @@ public class DecisionTree
 		}
 
 		Debug.Log("Read from '" + file + "'");
+
+		// Store all profiles for debug
+		agentProfiles = new VariableCollection[avaliableCollections.Count];
+		for (int i = 0; i < avaliableCollections.Count; ++i)
+			agentProfiles[i] = avaliableCollections[i].vars;
+
+		// Randomly assign a profile to this var
+		if (totalWeight == 0.0f)
+			agentProfile = new VariableCollection();
+		else
+		{
+			// Fetch a profile based on it's weight
+			float value = UnityEngine.Random.Range(0.0f, totalWeight);
+
+			for (int i = 0; i < avaliableCollections.Count; ++i)
+			{
+				if (value < avaliableCollections[i].weight)
+				{
+					agentProfile = avaliableCollections[i].vars;
+					break;
+				}
+				else
+					value -= avaliableCollections[i].weight;
+			}
+		}
+
+
 		return true;
 	}
 

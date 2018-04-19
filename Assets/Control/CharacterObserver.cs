@@ -13,6 +13,8 @@ public class CharacterObserver : MonoBehaviour
 	private PlayerPreview playerPreview;
 	[SerializeField]
 	private NetworkPreview networkPreview;
+	[SerializeField]
+	private TreePreview treePreview;
 
 	private Character viewTarget;
 
@@ -21,6 +23,7 @@ public class CharacterObserver : MonoBehaviour
 	{
 		networkPreview.gameObject.SetActive(false);
 		playerPreview.gameObject.SetActive(false);
+		treePreview.gameObject.SetActive(false);
 	}
 
 	void Update()
@@ -64,12 +67,14 @@ public class CharacterObserver : MonoBehaviour
 		// Pre-emptively disable eveything
 		networkPreview.gameObject.SetActive(false);
 		playerPreview.gameObject.SetActive(false);
+		treePreview.gameObject.SetActive(false);
 
 		// Update UI
 		if (viewTarget == null)
 			return;
 		PlayerInput playerInput = viewTarget.GetComponent<PlayerInput>();
 		NeuralInputAgent neuralInput = viewTarget.GetComponent<NeuralInputAgent>();
+		TreeInputAgent treeInput = viewTarget.GetComponent<TreeInputAgent>();
 
 
 		if (playerInput != null)
@@ -82,6 +87,11 @@ public class CharacterObserver : MonoBehaviour
 			networkPreview.gameObject.SetActive(true);
 			networkPreview.SetVisualisation(neuralInput);
 		}
-		
+		if (treeInput != null)
+		{
+			treePreview.gameObject.SetActive(true);
+			treePreview.SetVisualisation(treeInput);
+		}
+
 	}
 }
